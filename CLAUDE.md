@@ -67,15 +67,17 @@ mangatrack/
 │   ├── tracker/              # App métier principale
 │   │   ├── admin.py
 │   │   ├── apps.py
-│   │   ├── forms.py         # SeriesForm, UserSeriesForm, ReadingEntryForm
+│   │   ├── forms.py         # SeriesForm, UserSeriesForm, ReadingEntryForm, ProfileForm
 │   │   ├── models.py        # Genre, Series, UserSeries, ReadingEntry
 │   │   ├── urls.py
-│   │   ├── views.py         # 12 vues avec @login_required
+│   │   ├── views.py         # 16 vues avec @login_required
 │   │   ├── __init__.py
 │   │   ├── fixtures/
 │   │   │   └── genres.json   # 20 genres prépopulés
 │   │   ├── migrations/
-│   │   │   └── 0001_initial.py
+│   │   │   ├── 0001_initial.py
+│   │   │   ├── 0002_genre_slug.py
+│   │   │   └── 0003_alter_series_total_chapters.py
 │   │   └── templates/
 │   │       └── tracker/
 │   │           ├── dashboard.html
@@ -85,7 +87,11 @@ mangatrack/
 │   │           ├── series_confirm_delete.html
 │   │           ├── series_detail.html
 │   │           ├── series_form.html
-│   │           └── profile.html
+│   │           ├── profile.html
+│   │           ├── edit_profile.html
+│   │           ├── change_password.html
+│   │           ├── delete_account.html
+│   │           └── reading_entry_confirm_delete.html
 │   │
 │   ├── templates/            # Templates globaux
 │   │   ├── base.html
@@ -113,14 +119,17 @@ slug = SlugField(unique=True)
 ### Series
 ```python
 title = CharField(max_length=200)
+slug = SlugField(max_length=200, unique=True, blank=True)
 series_type = CharField(max_length=10)  # manga / manhwa / manhua
 author = CharField(max_length=200)
 cover = ImageField(upload_to='covers/', blank=True, null=True)
-total_chapters = PositiveIntegerField(default=0)
+total_chapters = PositiveIntegerField(null=True, blank=True)
 genres = ManyToManyField(Genre, blank=True)
 created_by = ForeignKey(User, related_name='created_series')
 created_at = DateTimeField(auto_now_add=True)
 # Série partagée entre users — created_by = créateur initial
+# total_chapters nullable (optionnel)
+# Méthode cover_url() pour générer l'URL de l'image
 ```
 
 ### UserSeries
@@ -163,9 +172,13 @@ read_at = DateTimeField(auto_now_add=True)
 | Dernier chapitre lu | `MAX(chapter_number)` des ReadingEntry — calculé via ORM, **jamais stocké** |
 | Upload couverture | Stockage local (`mediafiles/covers/`) — à migrer vers Supabase Storage |
 | Score optionnel | `null=True, blank=True` — une série peut exister sans note |
+| total_chapters optionnel | `null=True, blank=True` — peut être laissé vide lors de l'ajout |
 | Suppression en cascade | Suppression UserSeries → supprime tous ses ReadingEntry |
 | Auth obligatoire | `@login_required` sur toutes les vues métier — redirect vers `/dashboard/` |
 | Logout POST | Déconnexion via POST avec CSRF token (pas de GET) |
+| Suppression compte | Nécessite de taper le nom d'utilisateur pour confirmer |
+| Genres prépopulés | 20 genres chargés via fixtures au démarrage |
+| Slug auto-généré | Slug généré automatiquement à partir du titre si non fourni |
 
 ---
 
@@ -192,15 +205,18 @@ read_at = DateTimeField(auto_now_add=True)
 - Badges de statut colorés
 
 ### ✅ Gestion des séries
-- Ajout de série (formulaire avec upload couverture)
+- Ajout de série (formulaire avec upload couverture, genres)
 - Détail de série (progression, historique, infos)
 - Édition UserSeries (statut, favori, note, notes)
+- Édition Series (titre, type, auteur, couverture, genres, total_chapters)
 - Suppression avec confirmation
+- Genres prépopulés (20 genres via fixtures)
 
 ### ✅ Tracker de lecture
 - Ajout de chapitre lu
 - Historique paginé (20 par page)
 - Historique global de lecture
+- Suppression d'entrées d'historique (avec confirmation)
 - Dernier chapitre calculé via ORM
 - Progression visuelle (barre de progression)
 
@@ -210,6 +226,9 @@ read_at = DateTimeField(auto_now_add=True)
 - Score moyen
 - Séries par statut
 - Favoris récents
+- Modification du profil (username, email)
+- Changement de mot de passe
+- Suppression du compte (avec confirmation)
 
 ---
 
@@ -226,6 +245,10 @@ read_at = DateTimeField(auto_now_add=True)
 | Recherche | ✅ Complet |
 | Tri | ✅ Complet |
 | Profil utilisateur | ✅ Complet |
+| Gestion du compte | ✅ Complet |
+| Historique de lecture | ✅ Complet |
+| Suppression d'historique | ✅ Complet |
+| Genres | ✅ Complet |
 
 ### Fonctionnalités futures
 | Fonctionnalité | État |
@@ -235,6 +258,8 @@ read_at = DateTimeField(auto_now_add=True)
 | Admin Django | ❌ À faire |
 | API REST | ❌ À faire |
 | API MangaDex | ❌ À faire |
+| Notifications | ⏳ En cours |
+| Toggle favoris HTMX | ❌ À faire |
 
 ---
 
@@ -279,6 +304,7 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 ### 1. **Stockage des couvertures**
 - Actuellement local → pas adapté pour la prod
 - À migrer vers AWS S3 Storage (S3-compatible via django-storages)
+- Méthode `cover_url()` implémentée pour générer les URLs
 
 ### 2. **Toggle favoris sans JS**
 - Actuellement nécessite un POST → pourrait être amélioré avec HTMX ou JS
@@ -287,13 +313,17 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 - Aucun test unitaire/intégration
 - À ajouter pour assurer la qualité
 
-### 4. **Pas de validation avancée**
-- Pas de validation du numéro de chapitre (ex: ne peut pas dépasser total_chapters)
-- Pas de validation de l'image (taille, format)
+### 4. **Validation avancée**
+- Validation du numéro de chapitre (ex: ne peut pas dépasser total_chapters)
+- Validation de l'image (taille, format)
 
 ### 5. **Admin Django non configuré**
 - `admin.py` vide ou inexistant
 - À configurer pour gérer les données
+
+### 6. **Notifications**
+- Section notifications présente mais non implémentée
+- À implémenter pour les alertes de nouveaux chapitres
 
 ---
 
@@ -312,20 +342,49 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 3. **Améliorer l'UX**
    - Toggle favoris avec HTMX
    - Ajouter des animations de transition
+   - Améliorer la validation des formulaires
 
 4. **Configurer l'admin Django**
    - Enregistrer les modèles
    - Personnaliser les listes
    - Ajouter des filtres
 
-5. **Préparer le déploiement**
+5. **Implémenter les notifications**
+   - Système de notifications pour les nouveaux chapitres
+   - Préférences de notification par utilisateur
+   - Email de notification
+
+6. **Préparer le déploiement**
    - Configurer `collectstatic`
    - Mettre à jour les variables d'environnement
    - Tester sur Railway ou Render
 
+## 11. URLs principales
+
+| URL | Vue | Description |
+|-----|-----|-------------|
+| `/` | `dashboard` | Dashboard utilisateur |
+| `/library/` | `library` | Bibliothèque avec filtres |
+| `/library/add/` | `add_series` | Ajouter une série |
+| `/library/<slug>/` | `series_detail` | Détail d'une série |
+| `/library/<slug>/edit/` | `edit_user_series` | Éditer UserSeries |
+| `/library/<slug>/edit-info/` | `edit_series` | Éditer Series |
+| `/library/<slug>/delete/` | `delete_user_series` | Supprimer une série |
+| `/library/<slug>/add-chapter/` | `add_chapter` | Ajouter un chapitre lu |
+| `/library/<slug>/history/` | `reading_history` | Historique d'une série |
+| `/library/<slug>/history/<id>/delete/` | `delete_reading_entry` | Supprimer une entrée |
+| `/history/` | `reading_history_global` | Historique global |
+| `/profile/` | `profile` | Profil utilisateur |
+| `/profile/edit/` | `edit_profile` | Modifier le profil |
+| `/profile/change-password/` | `change_password` | Changer le mot de passe |
+| `/profile/delete/` | `delete_account` | Supprimer le compte |
+| `/login/` | `login` | Connexion |
+| `/logout/` | `logout` | Déconnexion |
+| `/register/` | `register` | Inscription |
+
 ---
 
-## 11. Fonctionnalités futures (hors MVP)
+## 12. Fonctionnalités futures (hors MVP)
 
 - Connexion API MangaDex pour auto-complétion à l'ajout
 - Notifications email — nouveaux chapitres
@@ -335,3 +394,38 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 - API REST publique (DRF)
 - PWA avec support offline
 - Système social : amis, comparaison de bibliothèques
+- Système de commentaires sur les séries
+- Listes personnalisées (to-read, reading-list, etc.)
+- Statistiques avancées (temps de lecture, genres préférés, etc.)
+
+## 13. Fichiers de configuration
+
+### `.gitignore`
+- Exclut les fichiers Python compilés
+- Exclut les fichiers de base de données
+- Exclut les fichiers d'environnement
+- Exclut les médias et fichiers statiques
+
+### `requirements.txt`
+- Django 6.0.4
+- psycopg2-binary
+- django-storages
+- boto3
+- Autres dépendances
+
+### `README.md`
+- Documentation complète du projet
+- Instructions d'installation
+- Guide d'utilisation
+- Structure du projet
+
+### `CONTRIBUTING.md`
+- Guide pour les contributeurs
+- Processus de développement
+- Conventions de code
+
+### `LICENSE`
+- Licence MIT
+
+### `.env.example`
+- Exemple de configuration des variables d'environnement
