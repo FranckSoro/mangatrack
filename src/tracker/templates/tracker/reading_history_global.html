@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Historique de lecture - MangaTrack{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold">Historique de lecture</h1>
+            <p class="text-base-content/70 mt-2">Tous vos chapitres lus</p>
+        </div>
+        <a href="{% url 'tracker:dashboard' %}" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+            </svg>
+            Retour
+        </a>
+    </div>
+
+    {% if entries %}
+        <div class="space-y-4">
+            {% for entry in entries %}
+                <div class="card bg-base-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="card-body p-4">
+                        <div class="flex items-center gap-4">
+                            {% if entry.user_series.series.cover %}
+                                <img src="{{ entry.user_series.series.cover_url }}" alt="{{ entry.user_series.series.title }}" class="w-16 h-24 object-cover rounded-lg">
+                            {% else %}
+                                <div class="w-16 h-24 bg-base-200 rounded-lg flex items-center justify-center">
+                                    <span class="text-base-content/30 text-xs">Pas de couverture</span>
+                                </div>
+                            {% endif %}
+
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-lg">
+                                    <a href="{% url 'tracker:series_detail' entry.user_series.series.slug %}" class="hover:text-primary">
+                                        {{ entry.user_series.series.title }}
+                                    </a>
+                                </h3>
+                                <p class="text-sm text-base-content/70">
+                                    Chapitre {{ entry.chapter_number }}
+                                    {% if entry.user_series.series.total_chapters > 0 %}
+                                        / {{ entry.user_series.series.total_chapters }}
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-base-content/50 mt-1">
+                                    Lu le {{ entry.read_at|date:"d/m/Y à H:i" }}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center gap-2">
+                                <span class="badge badge-ghost badge-sm">{{ entry.user_series.series.get_series_type_display }}</span>
+                                {% if entry.user_series.is_favorite %}
+                                    <span class="badge badge-warning badge-sm">Favori</span>
+                                {% endif %}
+                                <a href="{% url 'tracker:delete_reading_entry' entry.user_series.series.slug entry.id %}" class="btn btn-xs btn-ghost text-error hover:bg-error/10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if entries.has_other_pages %}
+            <div class="flex justify-center mt-8 gap-2">
+                {% if entries.has_previous %}
+                    <a href="?page={{ entries.previous_page_number }}" class="btn btn-sm">Précédent</a>
+                {% endif %}
+
+                <span class="btn btn-sm btn-disabled">
+                    Page {{ entries.number }} sur {{ entries.paginator.num_pages }}
+                </span>
+
+                {% if entries.has_next %}
+                    <a href="?page={{ entries.next_page_number }}" class="btn btn-sm">Suivant</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <div class="text-6xl mb-4">📚</div>
+            <h3 class="text-xl font-semibold mb-2">Aucun chapitre lu</h3>
+            <p class="text-base-content/70 mb-4">Commencez à lire des mangas pour voir votre historique ici !</p>
+            <a href="{% url 'tracker:library' %}" class="btn btn-primary">Voir ma bibliothèque</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

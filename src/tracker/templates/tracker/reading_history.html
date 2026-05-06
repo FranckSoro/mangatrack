@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique - {{ user_series.series.title }} - MangaTrack{% endblock %}
+{% block page_title %}Historique de lecture{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center gap-4 fade-in">
+        <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="btn btn-ghost btn-circle">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold">Historique de lecture</h1>
+            <p class="text-base-content/70">{{ user_series.series.title }}</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 fade-in stagger-1">
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-body p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">{{ entries.paginator.count }}</p>
+                        <p class="text-sm text-base-content/70">Chapitres lus</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-body p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">{{ user_series.last_chapter|default:0 }}</p>
+                        <p class="text-sm text-base-content/70">Dernier chapitre</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-100 shadow-lg">
+            <div class="card-body p-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold">{{ user_series.total_chapters_read }}</p>
+                        <p class="text-sm text-base-content/70">Total lectures</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card bg-base-100 shadow-xl fade-in stagger-2">
+        <div class="card-body">
+            <div class="space-y-4">
+                {% for entry in entries %}
+                <div class="flex gap-4 group">
+                    <!-- Timeline Line -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-lg group-hover:scale-110 transition-transform">
+                            {{ entry.chapter_number }}
+                        </div>
+                        {% if not forloop.last %}
+                        <div class="w-0.5 h-full bg-base-300 mt-2"></div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 pb-4 {% if not forloop.last %}border-b border-base-200{% endif %}">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="font-semibold text-lg">Chapitre {{ entry.chapter_number }}</h3>
+                                <p class="text-sm text-base-content/70 mt-1">
+                                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    {{ entry.read_at|date:"d/m/Y à H:i" }}
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="btn btn-sm btn-ghost">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </a>
+                                <a href="{% url 'tracker:delete_reading_entry' user_series.series.slug entry.id %}" class="btn btn-sm btn-ghost text-error hover:bg-error/10">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-16">
+                    <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-base-300 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Aucun chapitre dans l'historique</h3>
+                    <p class="text-base-content/70 mb-4">Commencez à marquer vos chapitres lus</p>
+                    <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="btn btn-primary">
+                        Marquer un chapitre
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if entries.has_other_pages %}
+    <div class="flex justify-center fade-in">
+        <div class="join">
+            {% if entries.has_previous %}
+            <a href="?page=1" class="join-item btn">««</a>
+            <a href="?page={{ entries.previous_page_number }}" class="join-item btn">«</a>
+            {% endif %}
+
+            <button class="join-item btn btn-active">
+                Page {{ entries.number }} sur {{ entries.paginator.num_pages }}
+            </button>
+
+            {% if entries.has_next %}
+            <a href="?page={{ entries.next_page_number }}" class="join-item btn">»</a>
+            <a href="?page={{ entries.paginator.num_pages }}" class="join-item btn">»»</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Bibliothèque - MangaTrack{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold">Ma Bibliothèque</h1>
+            <p class="text-base-content/70">{{ user_series_list.paginator.count }} série{{ user_series_list.paginator.count|pluralize }}</p>
+        </div>
+        <a href="{% url 'tracker:add_series' %}" class="btn btn-primary btn-lg gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Ajouter une série
+        </a>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card bg-base-100 shadow">
+        <div class="card-body py-4">
+            <form method="get" class="space-y-4">
+                <!-- Search -->
+                <div class="form-control">
+                    <div class="relative">
+                        <input
+                            type="text"
+                            name="search"
+                            value="{{ request.GET.search }}"
+                            placeholder="Rechercher une série..."
+                            class="input input-bordered w-full pl-12"
+                        >
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Filters Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Status Filter -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Statut</span>
+                        </label>
+                        <select name="status" class="select select-bordered w-full">
+                            <option value="">Tous</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Type Filter -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Type</span>
+                        </label>
+                        <select name="type" class="select select-bordered w-full">
+                            <option value="">Tous</option>
+                            {% for value, label in type_choices %}
+                            <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Favorites Filter -->
+                    <div class="form-control">
+                        <label class="label cursor-pointer justify-between gap-3">
+                            <span class="label-text font-medium">Favoris</span>
+                            <input type="checkbox" name="favorites" value="on" class="checkbox checkbox-primary" {% if request.GET.favorites == 'on' %}checked{% endif %}>
+                        </label>
+                    </div>
+
+                    <!-- Sort -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Trier par</span>
+                        </label>
+                        <select name="sort" class="select select-bordered w-full">
+                            <option value="">Par défaut</option>
+                            <option value="title" {% if request.GET.sort == 'title' %}selected{% endif %}>Titre A-Z</option>
+                            <option value="-title" {% if request.GET.sort == '-title' %}selected{% endif %}>Titre Z-A</option>
+                            <option value="-added_at" {% if request.GET.sort == '-added_at' %}selected{% endif %}>Plus récent</option>
+                            <option value="added_at" {% if request.GET.sort == 'added_at' %}selected{% endif %}>Plus ancien</option>
+                            <option value="-score" {% if request.GET.sort == '-score' %}selected{% endif %}>Meilleure note</option>
+                            <option value="score" {% if request.GET.sort == 'score' %}selected{% endif %}>Moins bien noté</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                        </svg>
+                        Filtrer
+                    </button>
+                    <a href="{% url 'tracker:library' %}" class="btn btn-ghost gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Réinitialiser
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Grille des séries -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {% for user_series in user_series_list %}
+        <div class="card card-compact bg-base-100 shadow-xl hover:shadow-2xl transition-shadow">
+            <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="relative w-full block" style="aspect-ratio: 2/2.8;">
+                {% if user_series.series.cover %}
+                <img src="{{ user_series.series.cover_url }}" alt="{{ user_series.series.title }}" class="absolute inset-0 w-full h-full object-cover" />
+                {% else %}
+                <div class="absolute inset-0 bg-base-300 flex items-center justify-center">
+                    <span class="text-6xl opacity-50">📚</span>
+                </div>
+                {% endif %}
+            </a>
+
+            <div class="card-body py-2 px-3">
+                <div class="flex justify-between items-start gap-2">
+                    <h2 class="card-title text-sm truncate">
+                        <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="hover:text-primary">
+                            {{ user_series.series.title }}
+                        </a>
+                    </h2>
+                    {% if user_series.is_favorite %}
+                    <span class="text-yellow-500 shrink-0 text-xs">★</span>
+                    {% endif %}
+                </div>
+
+                <div class="text-[10px] text-base-content/70">
+                    {{ user_series.series.get_series_type_display }} • {{ user_series.series.author }}
+                </div>
+
+                <div class="flex flex-wrap gap-1">
+                    <div class="badge badge-{{ user_series.status }}{% if user_series.status == 'en_cours' %}info{% elif user_series.status == 'termine' %}success{% elif user_series.status == 'pause' %}warning{% else %}error{% endif %} badge-xs">
+                        {{ user_series.get_status_display }}
+                    </div>
+                    {% if user_series.score %}
+                    <div class="badge badge-primary badge-xs">{{ user_series.score }}/10</div>
+                    {% endif %}
+                </div>
+
+                <div class="text-[10px]">
+                    <strong>Chapitres lus :</strong> {{ user_series.last_chapter|default:0 }} / {{ user_series.series.total_chapters|default:"?" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <p class="text-xl mb-4">Votre bibliothèque est vide</p>
+            <a href="{% url 'tracker:add_series' %}" class="btn btn-primary">Ajouter votre première série</a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if user_series_list.has_other_pages %}
+    <div class="flex justify-center mt-6">
+        <div class="join">
+            {% if user_series_list.has_previous %}
+            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">««</a>
+            <a href="?page={{ user_series_list.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">«</a>
+            {% endif %}
+
+            <button class="join-item btn btn-active">
+                Page {{ user_series_list.number }} sur {{ user_series_list.paginator.num_pages }}
+            </button>
+
+            {% if user_series_list.has_next %}
+            <a href="?page={{ user_series_list.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">»</a>
+            <a href="?page={{ user_series_list.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">»»</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

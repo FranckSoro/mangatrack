@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Modifier mon profil - MangaTrack{% endblock %}
+{% block page_title %}Modifier mon profil{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="card bg-base-100 shadow-xl fade-in">
+        <div class="card-body">
+            <div class="flex items-center gap-4 mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white text-2xl shadow-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold">Modifier mon profil</h2>
+                    <p class="text-base-content/70">Mettez à jour vos informations personnelles</p>
+                </div>
+            </div>
+
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Nom d'utilisateur *</span>
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <label class="label"><span class="label-text-alt text-error">{{ form.username.errors.0 }}</span></label>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Email</span>
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <label class="label"><span class="label-text-alt text-error">{{ form.email.errors.0 }}</span></label>
+                    {% endif %}
+                    <label class="label">
+                        <span class="label-text-alt">Optionnel - utilisé pour les notifications</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="submit" class="btn btn-primary flex-1 gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Enregistrer
+                    </button>
+                    <a href="{% url 'tracker:profile' %}" class="btn btn-ghost">Annuler</a>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <div class="flex justify-center">
+                <a href="{% url 'tracker:profile' %}" class="btn btn-ghost gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Retour au profil
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
+        inputs.forEach(input => {
+            if (!input.classList.contains('input')) {
+                input.classList.add('input', 'input-bordered', 'w-full');
+            }
+        });
+    });
+</script>
+{% endblock %}

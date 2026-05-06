@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Déconnexion - MangaTrack{% endblock %}
+{% block page_title %}Déconnexion{% endblock %}
+
+{% block content %}
+<div class="min-h-[calc(100vh-200px)] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="card bg-base-100 shadow-2xl fade-in">
+            <div class="card-body p-8 text-center">
+                <!-- Success Icon -->
+                <div class="w-20 h-20 mx-auto rounded-full bg-success/20 flex items-center justify-center mb-6">
+                    <svg class="w-10 h-10 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+
+                <h2 class="text-3xl font-bold mb-2">Vous êtes déconnecté</h2>
+                <p class="text-base-content/70 mb-8">Merci d'avoir utilisé MangaTrack. À bientôt !</p>
+
+                <!-- Actions -->
+                <div class="space-y-3">
+                    <a href="{% url 'tracker:login' %}" class="btn btn-primary btn-lg w-full gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                        </svg>
+                        Se reconnecter
+                    </a>
+                    <a href="{% url 'tracker:dashboard' %}" class="btn btn-ghost w-full">
+                        Retourner à l'accueil
+                    </a>
+                </div>
+
+                <!-- Features -->
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto rounded-lg bg-primary/20 flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-base-content/70">Suivez vos lectures</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto rounded-lg bg-secondary/20 flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-base-content/70">Statistiques</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-10 h-10 mx-auto rounded-lg bg-accent/20 flex items-center justify-center mb-2">
+                            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-xs text-base-content/70">Vos favoris</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

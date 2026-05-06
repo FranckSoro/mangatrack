@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ user_series.series.title }} - MangaTrack{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Button -->
+    <a href="{% url 'tracker:library' %}" class="btn btn-ghost gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Retour à la bibliothèque
+    </a>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Series Info Card -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-6">
+                        <div class="flex-1 min-w-0">
+                            <h1 class="text-3xl font-bold mb-2 truncate">{{ user_series.series.title }}</h1>
+                            <p class="text-base-content/70 truncate">{{ user_series.series.author }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+                            <a href="{% url 'tracker:edit_series' user_series.series.slug %}" class="btn btn-sm btn-ghost gap-2 flex-1 sm:flex-none">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Modifier la couverture</span>
+                                <span class="sm:hidden">Couverture</span>
+                            </a>
+                            <a href="{% url 'tracker:edit_user_series' user_series.series.slug %}" class="btn btn-sm btn-ghost gap-2 flex-1 sm:flex-none">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Modifier la bibliothèque</span>
+                                <span class="sm:hidden">Bibliothèque</span>
+                            </a>
+                            <a href="{% url 'tracker:delete_series' user_series.series.slug %}" class="btn btn-sm btn-ghost text-error gap-2 flex-1 sm:flex-none">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Supprimer</span>
+                                <span class="sm:hidden">Supprimer</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Badges -->
+                    <div class="flex flex-wrap gap-2 mb-6">
+                        <div class="badge badge-lg
+                            {% if user_series.status == 'en_cours' %}badge-info
+                            {% elif user_series.status == 'termine' %}badge-success
+                            {% elif user_series.status == 'pause' %}badge-warning
+                            {% else %}badge-error{% endif %}
+                            gap-1">
+                            {% if user_series.status == 'en_cours' %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            {% elif user_series.status == 'termine' %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% elif user_series.status == 'pause' %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                </svg>
+                            {% endif %}
+                            {{ user_series.get_status_display }}
+                        </div>
+
+                        {% if user_series.is_favorite %}
+                        <div class="badge badge-lg badge-warning gap-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            Favori
+                        </div>
+                        {% endif %}
+
+                        {% if user_series.score %}
+                        <div class="badge badge-lg badge-primary gap-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                            </svg>
+                            {{ user_series.score }}/10
+                        </div>
+                        {% endif %}
+
+                        <div class="badge badge-lg badge-outline">{{ user_series.series.get_series_type_display }}</div>
+                    </div>
+
+                    <!-- Cover -->
+                    {% if user_series.series.cover %}
+                    <div class="relative rounded-xl overflow-hidden mb-6">
+                        <img
+                            src="{{ user_series.series.cover_url }}"
+                            alt="{{ user_series.series.title }}"
+                            class="w-full max-h-96 object-contain mx-auto"
+                        />
+                    </div>
+                    {% endif %}
+
+                    <!-- Genres -->
+                    {% if user_series.series.genres.exists %}
+                    <div class="mb-6">
+                        <h3 class="font-semibold mb-3">Genres</h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for genre in user_series.series.genres.all %}
+                            <div class="badge badge-outline">{{ genre.name }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Notes -->
+                    {% if user_series.notes %}
+                    <div class="p-4 bg-base-200 rounded-xl">
+                        <h3 class="font-semibold mb-2 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Vos notes
+                        </h3>
+                        <p class="whitespace-pre-wrap text-base-content/80">{{ user_series.notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reading History -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="card-title text-xl flex items-center gap-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Historique de lecture
+                        </h3>
+                        <a href="{% url 'tracker:reading_history' user_series.series.slug %}" class="btn btn-sm btn-ghost gap-1">
+                            Voir tout
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <div class="space-y-3">
+                        {% for entry in history %}
+                        <div class="flex items-center justify-between p-3 rounded-xl bg-base-200/50 hover:bg-base-200 transition-colors">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold">
+                                    {{ entry.chapter_number }}
+                                </div>
+                                <div>
+                                    <p class="font-medium">Chapitre {{ entry.chapter_number }}</p>
+                                    <p class="text-sm text-base-content/70">{{ entry.read_at|date:"d/m/Y à H:i" }}</p>
+                                </div>
+                            </div>
+                            <a href="{% url 'tracker:delete_reading_entry' user_series.series.slug entry.id %}" class="btn btn-xs btn-ghost text-error hover:bg-error/10">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </a>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-8">
+                            <svg class="w-16 h-16 mx-auto text-base-content/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-base-content/70">Aucun chapitre lu pour le moment</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Progress Card -->
+            <div class="card bg-gradient-to-br from-primary to-secondary shadow-xl text-white">
+                <div class="card-body">
+                    <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Progression
+                    </h3>
+
+                    <div class="text-center mb-4">
+                        <div class="text-5xl font-bold">{{ last_chapter }}</div>
+                        <div class="text-white/80">chapitres lus</div>
+                    </div>
+
+                    {% if user_series.series.total_chapters > 0 %}
+                    <div class="text-center mb-4">
+                        <div class="text-2xl font-semibold">{{ user_series.series.total_chapters }}</div>
+                        <div class="text-white/80">chapitres au total</div>
+                    </div>
+
+                    <progress
+                        class="progress progress-white w-full"
+                        value="{{ last_chapter }}"
+                        max="{{ user_series.series.total_chapters }}"
+                    ></progress>
+
+                    <div class="text-center mt-2">
+                        <span class="text-lg font-semibold">
+                            {% widthratio last_chapter user_series.series.total_chapters 100 as percent %}
+                            {{ percent|floatformat:0 }}%
+                        </span>
+                        <span class="text-white/80"> complété</span>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-white/80">Nombre de chapitres inconnu</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Add Chapter Card -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Marquer un chapitre lu
+                    </h3>
+
+                    <form method="post" action="{% url 'tracker:add_chapter' user_series.series.slug %}" class="space-y-4">
+                        {% csrf_token %}
+                        <div class="form-control">
+                            <label class="label">
+                                <span class="label-text font-medium">Numéro du chapitre</span>
+                            </label>
+                            <div class="relative">
+                                {{ chapter_form.chapter_number }}
+                                <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                                </svg>
+                            </div>
+                            {% if chapter_form.chapter_number.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ chapter_form.chapter_number.errors.0 }}</span>
+                            </label>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-full gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Enregistrer
+                        </button>
+                    </form>
+
+                    {% if last_chapter > 0 %}
+                    <div class="mt-4 p-3 bg-base-200 rounded-lg text-center">
+                        <p class="text-sm text-base-content/70">
+                            Dernier chapitre lu : <span class="font-bold text-primary">{{ last_chapter }}</span>
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Series Info Card -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Informations
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-base-200">
+                            <span class="text-base-content/70">Type</span>
+                            <span class="font-medium">{{ user_series.series.get_series_type_display }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-200">
+                            <span class="text-base-content/70">Auteur</span>
+                            <span class="font-medium">{{ user_series.series.author }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-base-200">
+                            <span class="text-base-content/70">Ajoutée le</span>
+                            <span class="font-medium">{{ user_series.added_at|date:"d/m/Y" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-base-content/70">Chapitres lus</span>
+                            <span class="font-medium">{{ user_series.total_chapters_read }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add input classes to form fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
+        inputs.forEach(input => {
+            if (!input.classList.contains('input') && !input.classList.contains('select') && !input.classList.contains('textarea')) {
+                if (input.tagName === 'SELECT') {
+                    input.classList.add('select', 'select-bordered', 'w-full');
+                } else if (input.tagName === 'TEXTAREA') {
+                    input.classList.add('textarea', 'textarea-bordered', 'w-full', 'h-32');
+                } else {
+                    input.classList.add('input', 'input-bordered', 'w-full');
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

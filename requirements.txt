@@ -1,0 +1,19 @@
+# Django
+Django==6.0.4
+psycopg2-binary==2.9.9
+
+# Django Extensions
+django-cors-headers==4.3.1
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# Image Processing
+Pillow==10.2.0
+
+# AWS S3 (pour Supabase Storage)
+django-storages==1.14.2
+boto3==1.34.49
+
+# Development
+django-debug-toolbar==4.2.0

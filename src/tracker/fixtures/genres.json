@@ -1,0 +1,22 @@
+[
+  {"model": "tracker.genre", "pk": 1, "fields": {"name": "Action", "slug": "action"}},
+  {"model": "tracker.genre", "pk": 2, "fields": {"name": "Aventure", "slug": "aventure"}},
+  {"model": "tracker.genre", "pk": 3, "fields": {"name": "Comédie", "slug": "comedie"}},
+  {"model": "tracker.genre", "pk": 4, "fields": {"name": "Drame", "slug": "drame"}},
+  {"model": "tracker.genre", "pk": 5, "fields": {"name": "Fantaisie", "slug": "fantaisie"}},
+  {"model": "tracker.genre", "pk": 6, "fields": {"name": "Horreur", "slug": "horreur"}},
+  {"model": "tracker.genre", "pk": 7, "fields": {"name": "Mystère", "slug": "mystere"}},
+  {"model": "tracker.genre", "pk": 8, "fields": {"name": "Romance", "slug": "romance"}},
+  {"model": "tracker.genre", "pk": 9, "fields": {"name": "Science-fiction", "slug": "science-fiction"}},
+  {"model": "tracker.genre", "pk": 10, "fields": {"name": "Slice of Life", "slug": "slice-of-life"}},
+  {"model": "tracker.genre", "pk": 11, "fields": {"name": "Sports", "slug": "sports"}},
+  {"model": "tracker.genre", "pk": 12, "fields": {"name": "Surnaturel", "slug": "surnaturel"}},
+  {"model": "tracker.genre", "pk": 13, "fields": {"name": "Thriller", "slug": "thriller"}},
+  {"model": "tracker.genre", "pk": 14, "fields": {"name": "Psychologique", "slug": "psychologique"}},
+  {"model": "tracker.genre", "pk": 15, "fields": {"name": "Historique", "slug": "historique"}},
+  {"model": "tracker.genre", "pk": 16, "fields": {"name": "Arts martiaux", "slug": "arts-martiaux"}},
+  {"model": "tracker.genre", "pk": 17, "fields": {"name": "École", "slug": "ecole"}},
+  {"model": "tracker.genre", "pk": 18, "fields": {"name": "Magie", "slug": "magie"}},
+  {"model": "tracker.genre", "pk": 19, "fields": {"name": "Mecha", "slug": "mecha"}},
+  {"model": "tracker.genre", "pk": 20, "fields": {"name": "Isekai", "slug": "isekai"}}
+]
