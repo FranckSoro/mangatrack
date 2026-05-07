@@ -61,8 +61,6 @@ yarn.lock
 mediafiles/
 media/
 
-# Static files
-static/
 
 # Coverage
 htmlcov/
