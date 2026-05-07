@@ -62,7 +62,6 @@ mediafiles/
 media/
 
 # Static files
-staticfiles/
 static/
 
 # Coverage
