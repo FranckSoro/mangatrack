@@ -107,6 +107,32 @@ mangatrack/
 
 ---
 
+## 3.1 Fichiers statiques
+
+### Favicons
+Les favicons sont situés dans `src/static/img/` et utilisent les couleurs DaisyUI du thème :
+- **Primary**: `rgb(0, 82, 180)` — bleu (correspond à `--color-primary:oklch(45% .24 277.023)`)
+- **Secondary**: `rgb(255, 66, 142)` — rose (correspond à `--color-secondary:oklch(65% .241 354.308)`)
+
+**Fichiers disponibles :**
+- `favicon.svg` — Format vectoriel SVG avec dégradé
+- `favicon.ico` — Format ICO avec multiples tailles (16x16, 32x32, 48x48, 64x64)
+- `apple-touch-icon.png` — Format PNG pour iOS (180x180)
+
+**Style :**
+- Fond avec dégradé `from-primary to-secondary`
+- Coins arrondis
+- Lettre "M" blanche centrée
+- Correspond exactement au logo dans la sidebar
+
+**Pour régénérer les favicons :**
+```bash
+python create_favicon.py
+python manage.py collectstatic --noinput
+```
+
+---
+
 ## 4. Modèles de données
 
 ### Genre
@@ -155,6 +181,19 @@ read_at = DateTimeField(auto_now_add=True)
 # index: (user_series, -chapter_number)
 ```
 
+### ReadingSite
+```python
+name = CharField(max_length=200, unique=True)
+url = URLField(max_length=500)
+logo = ImageField(upload_to='site_logos/', blank=True, null=True)
+description = TextField(blank=True, null=True)
+created_by = ForeignKey(User, related_name='created_sites')
+created_at = DateTimeField(auto_now_add=True)
+# Sites de lecture de manga/manhwa/manhua
+# Ajout/modification/suppression réservés aux superusers
+# Méthode logo_url() pour générer l'URL de l'image
+```
+
 ### Relations
 - `User` → `UserSeries` (one-to-many)
 - `Series` → `UserSeries` (one-to-many) — une série peut être dans plusieurs bibliothèques
@@ -189,6 +228,7 @@ read_at = DateTimeField(auto_now_add=True)
 - Connexion (`login`)
 - Déconnexion (`logout`) via POST avec CSRF
 - Django Auth natif (session-based)
+- **Réinitialisation du mot de passe** (`password_reset`, `password_reset_confirm`)
 
 ### ✅ Dashboard
 - Statistiques globales (total séries, chapitres lus, score moyen)
@@ -229,6 +269,14 @@ read_at = DateTimeField(auto_now_add=True)
 - Modification du profil (username, email)
 - Changement de mot de passe
 - Suppression du compte (avec confirmation)
+
+### ✅ Sites de lecture
+- Liste des sites de lecture (accessible à tous les utilisateurs connectés)
+- Ajout de site (réservé aux superusers)
+- Modification de site (réservé aux superusers)
+- Suppression de site (réservé aux superusers)
+- Grille responsive avec logos et descriptions
+- Liens externes vers les sites
 
 ---
 
@@ -295,6 +343,21 @@ AWS_S3_REGION_NAME = env("AWS_S3_REGION_NAME", default="us-east-1")
 AWS_S3_FILE_OVERWRITE = False       # Ne pas écraser les fichiers dupliqués
 AWS_DEFAULT_ACL = None              # Sécurité : pas d'accès public par défaut
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+```
+
+### Variables Email Configuration (réinitialisation mot de passe)
+```.env
+# Email Configuration
+EMAIL_BACKEND = env("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+EMAIL_HOST = env("EMAIL_HOST", default="smtp.gmail.com")
+EMAIL_PORT = env("EMAIL_PORT", default=587)
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="noreply@mangatrack.com")
+
+# Site URL pour les liens de réinitialisation
+SITE_URL = env("SITE_URL", default="http://127.0.0.1:8000")
 ```
 
 ---
@@ -381,6 +444,12 @@ AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 | `/login/` | `login` | Connexion |
 | `/logout/` | `logout` | Déconnexion |
 | `/register/` | `register` | Inscription |
+| `/password-reset/` | `password_reset` | Demander la réinitialisation du mot de passe |
+| `/password-reset/<uidb64>/<token>/` | `password_reset_confirm` | Confirmer et réinitialiser le mot de passe |
+| `/sites/` | `list_sites` | Liste des sites de lecture |
+| `/sites/add/` | `add_site` | Ajouter un site de lecture (superuser) |
+| `/sites/<id>/edit/` | `edit_site` | Modifier un site de lecture (superuser) |
+| `/sites/<id>/delete/` | `delete_site` | Supprimer un site de lecture (superuser) |
 
 ---
 

@@ -19,14 +19,21 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('profile/change-password/', views.change_password, name='change_password'),
     path('profile/delete/', views.delete_account, name='delete_account'),
+    # Sites de lecture
+    path('sites/', views.list_sites, name='list_sites'),
+    path('sites/add/', views.add_site, name='add_site'),
+    path('sites/<int:site_id>/edit/', views.edit_site, name='edit_site'),
+    path('sites/<int:site_id>/delete/', views.delete_site, name='delete_site'),
 ]
 
 # URLs pour l'authentification (vues inline)
 from django.contrib.auth import views as auth_views
-from .views import register
+from .views import register, password_reset_request, CustomPasswordResetConfirmView
 
 urlpatterns += [
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='registration/logged_out.html', next_page='tracker:login'), name='logout'),
     path('register/', views.register, name='register'),
+    path('password-reset/', password_reset_request, name='password_reset'),
+    path('password-reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]

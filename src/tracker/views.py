@@ -1,16 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordResetConfirmView
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 from django.db.models import Count, Avg, Sum, F, Max
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django import forms
+from django.conf import settings
 
-from .models import Series, UserSeries, ReadingEntry, Genre
-from .forms import SeriesForm, UserSeriesForm, ReadingEntryForm
+from .models import Series, UserSeries, ReadingEntry, Genre, ReadingSite
+from .forms import SeriesForm, UserSeriesForm, ReadingEntryForm, ReadingSiteForm
 
 
 class ProfileForm(forms.ModelForm):
@@ -436,3 +441,122 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'registration/register.html', {'form': form})
+
+
+def password_reset_request(request):
+    """Vue pour demander la réinitialisation du mot de passe"""
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            # Utiliser le SITE_URL configuré pour les liens de réinitialisation
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='registration/password_reset_email.html',
+                subject_template_name='registration/password_reset_subject.txt',
+                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@mangatrack.com'),
+            )
+            messages.success(
+                request,
+                "Si un compte existe avec cet email, vous recevrez un lien pour réinitialiser votre mot de passe."
+            )
+            return redirect('tracker:login')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'registration/password_reset_form.html', {'form': form})
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    """Vue personnalisée pour confirmer la réinitialisation du mot de passe"""
+    template_name = 'registration/password_reset_confirm.html'
+    success_url = '/login/'
+    post_reset_login = False
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter."
+        )
+        return super().form_valid(form)
+
+
+# Vues pour les sites de lecture
+@login_required
+def list_sites(request):
+    """Liste des sites de lecture"""
+    sites = ReadingSite.objects.all()
+    is_superuser = request.user.is_superuser
+    return render(request, 'tracker/list_site.html', {
+        'sites': sites,
+        'is_superuser': is_superuser
+    })
+
+
+@login_required
+def add_site(request):
+    """Ajouter un site de lecture (réservé aux superusers)"""
+    if not request.user.is_superuser:
+        messages.error(request, "Vous n'avez pas la permission d'ajouter un site.")
+        return redirect('tracker:list_sites')
+
+    if request.method == 'POST':
+        form = ReadingSiteForm(request.POST, request.FILES)
+        if form.is_valid():
+            site = form.save(commit=False)
+            site.created_by = request.user
+            site.save()
+            messages.success(request, f"Le site {site.name} a été ajouté avec succès.")
+            return redirect('tracker:list_sites')
+    else:
+        form = ReadingSiteForm()
+
+    return render(request, 'tracker/site_form.html', {
+        'form': form,
+        'title': 'Ajouter un site de lecture'
+    })
+
+
+@login_required
+def edit_site(request, site_id):
+    """Modifier un site de lecture (réservé aux superusers)"""
+    if not request.user.is_superuser:
+        messages.error(request, "Vous n'avez pas la permission de modifier un site.")
+        return redirect('tracker:list_sites')
+
+    site = get_object_or_404(ReadingSite, id=site_id)
+
+    if request.method == 'POST':
+        form = ReadingSiteForm(request.POST, request.FILES, instance=site)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Le site {site.name} a été modifié avec succès.")
+            return redirect('tracker:list_sites')
+    else:
+        form = ReadingSiteForm(instance=site)
+
+    return render(request, 'tracker/site_form.html', {
+        'form': form,
+        'title': f'Modifier {site.name}',
+        'site': site
+    })
+
+
+@login_required
+def delete_site(request, site_id):
+    """Supprimer un site de lecture (réservé aux superusers)"""
+    if not request.user.is_superuser:
+        messages.error(request, "Vous n'avez pas la permission de supprimer un site.")
+        return redirect('tracker:list_sites')
+
+    site = get_object_or_404(ReadingSite, id=site_id)
+
+    if request.method == 'POST':
+        site_name = site.name
+        site.delete()
+        messages.success(request, f"Le site {site_name} a été supprimé avec succès.")
+        return redirect('tracker:list_sites')
+
+    return render(request, 'tracker/site_confirm_delete.html', {
+        'site': site
+    })

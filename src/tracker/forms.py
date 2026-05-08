@@ -1,5 +1,5 @@
 from django import forms
-from .models import Genre, Series, UserSeries, ReadingEntry
+from .models import Genre, Series, UserSeries, ReadingEntry, ReadingSite
 
 
 class SeriesForm(forms.ModelForm):
@@ -33,5 +33,27 @@ class ReadingEntryForm(forms.ModelForm):
                 'min': 1,
                 'class': 'input input-bordered w-full',
                 'placeholder': 'Numéro du chapitre'
+            })
+        }
+
+
+class ReadingSiteForm(forms.ModelForm):
+    """Formulaire d'ajout/édition d'un site de lecture"""
+    class Meta:
+        model = ReadingSite
+        fields = ['name', 'url', 'logo', 'description']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Nom du site'
+            }),
+            'url': forms.URLInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'https://exemple.com'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'textarea textarea-bordered w-full',
+                'placeholder': 'Description du site...',
+                'rows': 4
             })
         }

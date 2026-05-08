@@ -102,25 +102,33 @@ AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='eu-west-3')
 # Sécurité / comportement
 AWS_S3_FILE_OVERWRITE = env.bool('AWS_S3_FILE_OVERWRITE', default=False)
 AWS_DEFAULT_ACL = None  # Bucket sans ACLs (utiliser la politique de bucket pour l'accès public)
-AWS_QUERYSTRING_AUTH = False  # URLs sans query string (accès public via politique de bucket)
+AWS_QUERYSTRING_AUTH = True
+AWS_QUERYSTRING_EXPIRE = 3600    # 1h d'expiration
 
 # SSL
 AWS_S3_VERIFY = env.bool('AWS_S3_VERIFY', default=True)
 
 # Domain accès (seulement si le bucket est configuré)
-AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+#AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
 
 # Fichiers statiques (CSS, JS)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Fichiers media (uploads utilisateurs)
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+# Storage (Django 4.2+)
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -131,3 +139,15 @@ LOGIN_URL = 'tracker:login'
 
 TAILWIND_APP_NAME = "theme"
 NPM_BIN_PATH = r"C:\Program Files\nodejs\npm.cmd"
+
+# Email Configuration (pour la réinitialisation du mot de passe)
+EMAIL_BACKEND = env('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = env('EMAIL_PORT', default=587)
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='noreply@mangatrack.com')
+
+# Domain pour les liens de réinitialisation
+SITE_URL = env('SITE_URL', default='http://127.0.0.1:8000')

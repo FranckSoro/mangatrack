@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - MangaTrack{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{% url 'tracker:list_sites' %}" class="btn btn-circle btn-ghost">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <h1 class="text-3xl font-bold">{{ title }}</h1>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Nom du site <span class="text-error">*</span></span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ form.name.errors.0 }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control mt-4">
+                        <label class="label">
+                            <span class="label-text">URL du site <span class="text-error">*</span></span>
+                        </label>
+                        {{ form.url }}
+                        {% if form.url.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ form.url.errors.0 }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control mt-4">
+                        <label class="label">
+                            <span class="label-text">Logo du site</span>
+                        </label>
+                        <input type="file" name="logo" id="id_logo" class="file-input file-input-bordered w-full" accept="image/*">
+                        {% if site.logo %}
+                            <div class="mt-2">
+                                <img src="{{ site.logo_url }}" alt="{{ site.name }}" class="w-20 h-20 object-contain rounded-lg">
+                                <label class="label">
+                                    <span class="label-text-alt">Logo actuel</span>
+                                </label>
+                            </div>
+                        {% endif %}
+                        {% if form.logo.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ form.logo.errors.0 }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-control mt-4">
+                        <label class="label">
+                            <span class="label-text">Description</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <label class="label">
+                                <span class="label-text-alt text-error">{{ form.description.errors.0 }}</span>
+                            </label>
+                        {% endif %}
+                    </div>
+
+                    <div class="card-actions justify-end mt-6">
+                        <a href="{% url 'tracker:list_sites' %}" class="btn btn-ghost">Annuler</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if site %}Modifier{% else %}Ajouter{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

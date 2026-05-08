@@ -46,25 +46,11 @@ class Series(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
-    def cover_url(self):
+    @property
+    def cover_url(self) -> str | None:
         if not self.cover:
             return None
-        import boto3
-        from django.conf import settings
-        s3 = boto3.client(
-            's3',
-            region_name=settings.AWS_S3_REGION_NAME,
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        )
-        return s3.generate_presigned_url(
-            'get_object',
-            Params={
-                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
-                'Key': self.cover.name,
-            },
-            ExpiresIn=3600
-        )
+        return self.cover.url  # django-storages génère le presigned URL
 
 
 class UserSeries(models.Model):
@@ -123,3 +109,27 @@ class ReadingEntry(models.Model):
 
     def __str__(self):
         return f"{self.user_series.series.title} - Chapitre {self.chapter_number}"
+
+
+class ReadingSite(models.Model):
+    """Site de lecture de manga/manhwa/manhua"""
+    name = models.CharField(max_length=200, unique=True)
+    url = models.URLField(max_length=500)
+    logo = models.ImageField(upload_to='site_logos/', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_sites')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Site de lecture'
+        verbose_name_plural = 'Sites de lecture'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def logo_url(self) -> str | None:
+        if not self.logo:
+            return None
+        return self.logo.url
