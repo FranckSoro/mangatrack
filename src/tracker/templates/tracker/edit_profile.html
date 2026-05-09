@@ -71,15 +71,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('input[type="text"], input[type="email"]');
-        inputs.forEach(input => {
-            if (!input.classList.contains('input')) {
-                input.classList.add('input', 'input-bordered', 'w-full');
-            }
-        });
-    });
-</script>
 {% endblock %}

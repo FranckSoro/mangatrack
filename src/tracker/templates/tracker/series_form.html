@@ -254,30 +254,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Add input classes to form fields
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
-        inputs.forEach(input => {
-            if (!input.classList.contains('input') && !input.classList.contains('select') && !input.classList.contains('textarea')) {
-                if (input.tagName === 'SELECT') {
-                    input.classList.add('select', 'select-bordered', 'w-full');
-                } else if (input.tagName === 'TEXTAREA') {
-                    input.classList.add('textarea', 'textarea-bordered', 'w-full', 'h-32');
-                } else {
-                    input.classList.add('input', 'input-bordered', 'w-full');
-                }
-            }
-        });
-
-        // Add checkbox styling
-        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            if (!checkbox.classList.contains('checkbox')) {
-                checkbox.classList.add('checkbox', 'checkbox-primary');
-            }
-        });
-    });
-</script>
 {% endblock %}

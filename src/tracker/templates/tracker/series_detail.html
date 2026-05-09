@@ -310,22 +310,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Add input classes to form fields
-    document.addEventListener('DOMContentLoaded', function() {
-        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select, textarea');
-        inputs.forEach(input => {
-            if (!input.classList.contains('input') && !input.classList.contains('select') && !input.classList.contains('textarea')) {
-                if (input.tagName === 'SELECT') {
-                    input.classList.add('select', 'select-bordered', 'w-full');
-                } else if (input.tagName === 'TEXTAREA') {
-                    input.classList.add('textarea', 'textarea-bordered', 'w-full', 'h-32');
-                } else {
-                    input.classList.add('input', 'input-bordered', 'w-full');
-                }
-            }
-        });
-    });
-</script>
 {% endblock %}

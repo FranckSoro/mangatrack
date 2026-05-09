@@ -15,7 +15,7 @@ from django import forms
 from django.conf import settings
 
 from .models import Series, UserSeries, ReadingEntry, Genre, ReadingSite
-from .forms import SeriesForm, UserSeriesForm, ReadingEntryForm, ReadingSiteForm
+from .forms import SeriesForm, UserSeriesForm, ReadingEntryForm, ReadingSiteForm, ProfileForm, CustomPasswordChangeForm
 
 
 class ProfileForm(forms.ModelForm):
@@ -359,14 +359,14 @@ def edit_profile(request):
 def change_password(request):
     """Changer le mot de passe"""
     if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
+        form = CustomPasswordChangeForm(request.user, request.POST)
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, "Votre mot de passe a été changé avec succès !")
             return redirect('tracker:profile')
     else:
-        form = PasswordChangeForm(request.user)
+        form = CustomPasswordChangeForm(request.user)
 
     return render(request, 'tracker/change_password.html', {'form': form})
 

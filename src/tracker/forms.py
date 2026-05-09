@@ -1,4 +1,6 @@
 from django import forms
+from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+from django.contrib.auth.models import User
 from .models import Genre, Series, UserSeries, ReadingEntry, ReadingSite
 
 
@@ -8,10 +10,30 @@ class SeriesForm(forms.ModelForm):
     class Meta:
         model = Series
         fields = ['title', 'series_type', 'author', 'cover', 'total_chapters', 'genres']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Titre de la série'
+            }),
+            'series_type': forms.Select(attrs={
+                'class': 'select select-bordered w-full'
+            }),
+            'author': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Auteur'
+            }),
+            'total_chapters': forms.NumberInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Nombre total de chapitres',
+                'min': 1
+            }),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['genres'].widget = forms.CheckboxSelectMultiple()
+        self.fields['genres'].widget = forms.CheckboxSelectMultiple(attrs={
+            'class': 'checkbox checkbox-primary'
+        })
         self.fields['genres'].queryset = Genre.objects.all()
         self.fields['total_chapters'].required = False
 
@@ -21,6 +43,24 @@ class UserSeriesForm(forms.ModelForm):
     class Meta:
         model = UserSeries
         fields = ['status', 'is_favorite', 'score', 'notes']
+        widgets = {
+            'status': forms.Select(attrs={
+                'class': 'select select-bordered w-full'
+            }),
+            'is_favorite': forms.CheckboxInput(attrs={
+                'class': 'checkbox checkbox-primary'
+            }),
+            'score': forms.NumberInput(attrs={
+                'class': 'input input-bordered w-full',
+                'min': 1,
+                'max': 10,
+                'placeholder': 'Note (1-10)'
+            }),
+            'notes': forms.Textarea(attrs={
+                'class': 'textarea textarea-bordered w-full h-32',
+                'placeholder': 'Vos impressions, pensées ou mémos sur cette série'
+            })
+        }
 
 
 class ReadingEntryForm(forms.ModelForm):
@@ -57,3 +97,38 @@ class ReadingSiteForm(forms.ModelForm):
                 'rows': 4
             })
         }
+
+
+class ProfileForm(UserChangeForm):
+    """Formulaire de modification du profil utilisateur"""
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'Nom d\'utilisateur'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'input input-bordered w-full',
+                'placeholder': 'votre@email.com'
+            })
+        }
+
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    """Formulaire de changement de mot de passe personnalisé"""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['old_password'].widget = forms.PasswordInput(attrs={
+            'class': 'input input-bordered w-full pr-10',
+            'placeholder': 'Mot de passe actuel'
+        })
+        self.fields['new_password1'].widget = forms.PasswordInput(attrs={
+            'class': 'input input-bordered w-full pr-10',
+            'placeholder': 'Nouveau mot de passe'
+        })
+        self.fields['new_password2'].widget = forms.PasswordInput(attrs={
+            'class': 'input input-bordered w-full pr-10',
+            'placeholder': 'Confirmer le mot de passe'
+        })
