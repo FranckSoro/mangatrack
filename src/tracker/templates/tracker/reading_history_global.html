@@ -31,13 +31,13 @@
                                 </div>
                             {% endif %}
 
-                            <div class="flex-1">
-                                <h3 class="font-semibold text-lg">
-                                    <a href="{% url 'tracker:series_detail' entry.user_series.series.slug %}" class="hover:text-primary">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-semibold text-lg line-clamp-2 leading-tight">
+                                    <a href="{% url 'tracker:series_detail' entry.user_series.series.slug %}" class="hover:text-primary" title="{{ entry.user_series.series.title }}">
                                         {{ entry.user_series.series.title }}
                                     </a>
                                 </h3>
-                                <p class="text-sm text-base-content/70">
+                                <p class="text-sm text-base-content/70 truncate">
                                     Chapitre {{ entry.chapter_number }}
                                     {% if entry.user_series.series.total_chapters > 0 %}
                                         / {{ entry.user_series.series.total_chapters }}

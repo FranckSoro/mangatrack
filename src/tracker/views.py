@@ -33,6 +33,22 @@ class ProfileForm(forms.ModelForm):
         self.fields['email'].required = False
 
 
+class CustomUserCreationForm(UserCreationForm):
+    """Formulaire d'inscription personnalisé avec email"""
+    email = forms.EmailField(required=True, help_text='Required. Enter a valid email address.')
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user
+
+
 @login_required
 def dashboard(request):
     """Tableau de bord avec statistiques"""
@@ -431,14 +447,14 @@ def profile(request):
 def register(request):
     """Vue d'inscription"""
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             messages.success(request, "Compte créé avec succès ! Bienvenue sur MangaTrack.")
             return redirect('tracker:dashboard')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'registration/register.html', {'form': form})
 

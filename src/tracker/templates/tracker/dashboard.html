@@ -14,9 +14,9 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <!-- Total Series -->
-        <div class="card bg-base-100 shadow-xl card-hover fade-in stagger-1">
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 fade-in stagger-1">
             <div class="card-body">
                 <div class="flex items-center justify-between">
                     <div>
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Total Chapters Read -->
-        <div class="card bg-base-100 shadow-xl card-hover fade-in stagger-2">
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 fade-in stagger-2">
             <div class="card-body">
                 <div class="flex items-center justify-between">
                     <div>
@@ -52,7 +52,7 @@
         </div>
 
         <!-- Average Score -->
-        <div class="card bg-base-100 shadow-xl card-hover fade-in stagger-3">
+        <div class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1 fade-in stagger-3">
             <div class="card-body">
                 <div class="flex items-center justify-between">
                     <div>
@@ -145,7 +145,7 @@
                         {% endif %}
 
                         <div class="flex-1 min-w-0">
-                            <a href="{% url 'tracker:series_detail' item.series.slug %}" class="font-semibold hover:text-primary transition-colors truncate block">
+                            <a href="{% url 'tracker:series_detail' item.series.slug %}" class="font-semibold hover:text-primary transition-colors line-clamp-2 leading-tight block" title="{{ item.series.title }}">
                                 {{ item.series.title }}
                             </a>
                             <p class="text-sm text-base-content/70">{{ item.get_status_display }}</p>

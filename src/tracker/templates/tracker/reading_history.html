@@ -6,15 +6,15 @@
 {% block content %}
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- Header -->
-    <div class="flex items-center gap-4 fade-in">
-        <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="btn btn-ghost btn-circle">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 fade-in">
+        <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="btn btn-ghost btn-circle shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
         </a>
-        <div>
-            <h1 class="text-3xl font-bold">Historique de lecture</h1>
-            <p class="text-base-content/70">{{ user_series.series.title }}</p>
+        <div class="flex-1 min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-bold">Historique de lecture</h1>
+            <p class="text-base-content/70 truncate text-sm sm:text-base" title="{{ user_series.series.title }}">{{ user_series.series.title }}</p>
         </div>
     </div>
 
