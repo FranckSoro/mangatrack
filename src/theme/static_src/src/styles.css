@@ -9,3 +9,8 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+
+/* Force DaisyUI à garder tous ses composants */
+@plugin "daisyui" {
+  logs: true;
+}
