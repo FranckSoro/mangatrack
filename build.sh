@@ -5,9 +5,6 @@ set -e
 # Afficher chaque commande avant de l'exécuter
 set -x
 
-echo "Installation de pip"
-python3.12 -m ensurepip --upgrade
-
 # Installation des dépendances
 echo "Installation des dépendances"
 python3.12 -m pip install -r requirements.txt
