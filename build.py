@@ -1,6 +1,7 @@
 import subprocess
 
 def main():
+    # Compiler Tailwind CSS
     subprocess.run(
         ["npm", "install"],
         cwd="src/theme/static_src",
