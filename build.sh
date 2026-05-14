@@ -11,4 +11,4 @@ python3.12 -m pip install -r requirements.txt --break-system-packages
 
 # Collecte des fichiers statiques
 echo "Collection des fichiers statiques"
-python3.12 manage.py collectstatic --noinput
+python3.12 src/manage.py collectstatic --noinput
