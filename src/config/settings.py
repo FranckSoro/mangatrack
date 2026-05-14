@@ -1,6 +1,9 @@
 from pathlib import Path
 import environ
 
+# 🔑 Détection environnement Vercel
+IS_VERCEL = os.environ.get('VERCEL', False) or os.environ.get('VERCEL_REGION', False)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(DEBUG=(bool, False))
@@ -40,7 +43,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    #'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -49,7 +52,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-if DEBUG:
+if not IS_VERCEL:
+    # WhiteNoise uniquement en local/dev
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
+if DEBUG and not IS_VERCEL:
+    # django_browser_reload uniquement en local
+    MIDDLEWARE.insert(3, "django_browser_reload.middleware.BrowserReloadMiddleware")
+elif DEBUG:
     MIDDLEWARE.insert(2, "django_browser_reload.middleware.BrowserReloadMiddleware")
 
 ROOT_URLCONF = 'config.urls'
@@ -111,7 +121,12 @@ AWS_S3_VERIFY = env.bool('AWS_S3_VERIFY', default=True)
 
 # Fichiers statiques (CSS, JS)
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+if IS_VERCEL:
+    # Chemin absolu attendu par Vercel Functions pour le CDN static
+    STATIC_ROOT = '/var/task/staticfiles'
+else:
+    # Chemin relatif pour le dev local
+    STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 # Storage (Django 4.2+)
@@ -120,7 +135,11 @@ STORAGES = {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if not IS_VERCEL
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        ),
     },
 }
 
