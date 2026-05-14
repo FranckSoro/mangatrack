@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-app = "config.wsgi:application"
+app = "src.config.wsgi:application"
 
 [tool.vercel.scripts]
 build = "python build.py"
