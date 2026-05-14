@@ -31,11 +31,12 @@ LOCAL_APPS = [
     'tracker',
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
-
 if DEBUG:
     # Add django_browser_reload only in DEBUG mode
     THIRD_PARTY_APPS += ["django_browser_reload"]
+    
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,18 +1,14 @@
 #!/bin/bash
-
+# Arrêter le script si une commande échoue
 set -e
 
+# Afficher chaque commande avant de l'exécuter
+set -x
+
+# Installation des dépendances
+echo "Installation des dépendances"
 python3.12 -m pip install -r requirements.txt --break-system-packages
 
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt-get install -y nodejs
-
-cd src/theme/static_src
-
-npm install
-
-cd ../../..
-
-python3.12 src/manage.py tailwind build
-
+# Collecte des fichiers statiques
+echo "Collection des fichiers statiques"
 python3.12 src/manage.py collectstatic --noinput
