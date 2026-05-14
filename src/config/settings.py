@@ -49,10 +49,7 @@ MIDDLEWARE = [
 ]
 
 if DEBUG:
-    # Add django_browser_reload middleware only in DEBUG mode
-    MIDDLEWARE += [
-        "django_browser_reload.middleware.BrowserReloadMiddleware",
-    ]
+    MIDDLEWARE.insert(2, "django_browser_reload.middleware.BrowserReloadMiddleware")
 
 ROOT_URLCONF = 'config.urls'
 
@@ -114,9 +111,7 @@ AWS_S3_VERIFY = env.bool('AWS_S3_VERIFY', default=True)
 # Fichiers statiques (CSS, JS)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATICFILES_DIRS = [BASE_DIR / 'static',]
 
 # Storage (Django 4.2+)
 STORAGES = {

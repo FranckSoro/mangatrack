@@ -351,8 +351,9 @@ created_at = DateTimeField(auto_now_add=True)
 | API MangaDex | ❌ À faire |
 | Notifications | ⏳ En cours |
 | Toggle favoris HTMX | ❌ À faire |
-| Optimisation UI continue | ⏳ En cours |
-| Améliorations responsive | ⏳ En cours |
+| Optimisation UI continue | ✅ v1.5.0 |
+| Améliorations responsive | ✅ v1.5.0 |
+| Validation mot de passe visuelle | ✅ v1.5.0 |
 
 ---
 
@@ -430,37 +431,26 @@ SITE_URL = env("SITE_URL", default="http://127.0.0.1:8000")
 - Référence à `pk` qui n'existe pas à la ligne 278 de views.py
 - À corriger : `return redirect('tracker:series_detail', slug=slug)`
 
-### 6. **Optimisation UI**
-- Amélioration continue de l'interface utilisateur
-- Refonte des sections mal formatées
-- Meilleure intégration des composants DaisyUI
-- Responsive design pour tous les formulaires
-
 ---
 
 ## 10. Prochaines étapes suggérées
 
-1. **Corriger le bug dans add_chapter**
-   - Remplacer `return redirect('tracker:series_detail', pk=pk)` par `return redirect('tracker:series_detail', slug=slug)`
-
-2. **Ajouter des tests**
+1. **Ajouter des tests**
    - Tests unitaires pour les modèles
    - Tests d'intégration pour les vues
    - Tests de formulaire
 
-3. **Améliorer l'UX**
+2. **Améliorer l'UX**
    - Toggle favoris avec HTMX
    - Ajouter des animations de transition
-   - Améliorer la validation des formulaires
    - Continuer l'optimisation de l'interface utilisateur
-   - Améliorer le responsive design sur tous les appareils
 
-4. **Implémenter les notifications**
+3. **Implémenter les notifications**
    - Système de notifications pour les nouveaux chapitres
    - Préférences de notification par utilisateur
    - Email de notification
 
-5. **Optimiser le déploiement**
+4. **Optimiser le déploiement**
    - Configurer `collectstatic` pour Vercel
    - Mettre à jour les variables d'environnement
    - Optimiser les images pour le web
@@ -612,7 +602,7 @@ L'interface d'administration Django est configurée avec les modèles suivants :
 ### SeriesForm
 - Formulaire d'ajout/édition d'une série
 - Champs: title, series_type, author, cover, total_chapters, genres
-- Widget CheckboxSelectMultiple pour les genres
+- Widgets avec classes Tailwind (input, select, checkbox)
 - total_chapters non requis
 - Section "Couverture" optimisée avec file-input DaisyUI natif
 - Prévisualisation miniature intégrée en mode édition
@@ -620,21 +610,29 @@ L'interface d'administration Django est configurée avec les modèles suivants :
 ### UserSeriesForm
 - Formulaire d'édition d'une série dans la bibliothèque
 - Champs: status, is_favorite, score, notes
+- Widgets avec classes Tailwind (select, checkbox, input, textarea)
 
 ### ReadingEntryForm
 - Formulaire d'ajout d'un chapitre lu
 - Champs: chapter_number
-- Widget NumberInput avec min=1
+- Widget NumberInput avec classes Tailwind et min=1
 
 ### ReadingSiteForm
 - Formulaire d'ajout/édition d'un site de lecture
 - Champs: name, url, logo, description
-- Widgets personnalisés pour chaque champ
+- Widgets personnalisés avec classes Tailwind pour chaque champ
 
 ### ProfileForm
 - Formulaire de modification du profil utilisateur
 - Champs: username, email
+- Widgets avec classes Tailwind (input, email)
 - email non requis
+
+### CustomPasswordChangeForm
+- Formulaire de changement de mot de passe personnalisé
+- Champs: old_password, new_password1, new_password2
+- Widgets PasswordInput avec classes Tailwind
+- Hérite de PasswordChangeForm de Django
 
 ---
 
@@ -645,6 +643,12 @@ L'interface d'administration Django est configurée avec les modèles suivants :
 - **Ligne**: `return redirect('tracker:series_detail', pk=pk)`
 - **Correction**: `return redirect('tracker:series_detail', slug=slug)`
 - **Impact**: Empêche l'ajout de chapitres de fonctionner correctement
+
+### Bug Tailwind CSS (CORRIGÉ en v1.4.0)
+- **Problème**: Classes Tailwind générées dynamiquement via JavaScript non détectées en production
+- **Cause**: JavaScript ajoutait des classes (input, select, textarea, checkbox) non présentes dans les templates
+- **Correction**: Classes ajoutées directement dans les widgets Django (forms.py)
+- **Impact**: Les formulaires fonctionnent maintenant correctement en production
 
 ---
 
@@ -988,6 +992,29 @@ python src/manage.py test
 ---
 
 ## 31. Changements récents et historique des versions
+
+### Version 1.5.0 (2026-05-13)
+- **Validation visuelle mot de passe** : Icône verte de confirmation quand les mots de passe correspondent
+- **Responsive des formulaires** : Correction des largeurs exagérées sur tous les formulaires
+- **Formulaire inscription** ([register.html](src/templates/registration/register.html)) : Icône validation ✓ + bordure verte
+- **Formulaire changement mot de passe** ([change_password.html](src/tracker/templates/tracker/change_password.html)) : Icône validation ✓ + bordure verte
+- **Formulaire réinitialisation mot de passe** ([password_reset_confirm.html](src/templates/registration/password_reset_confirm.html)) : Icône validation ✓ + bordure verte
+- **Login** : Ajout de padding pour centrage vertical sur mobile
+- **edit_profile** : Max-width ajusté à 448px (was 672px)
+- **change_password** : Max-width ajusté à 448px (was 672px)
+- **series_form** : Max-width ajusté à 672px (was 768px)
+- **site_form/site_confirm_delete** : Max-width ajusté à 448px (was 672px)
+- **series_form** : Boutons de note 1-10 responsive (flex-wrap, flex-shrink-0)
+- **site_form/site_confirm_delete** : Boutons empilés sur mobile, côte à côte sur desktop
+- **CSS** : Ajout de classe `.input-success` pour bordure verte de validation
+
+### Version 1.4.0 (2026-05-09)
+- **Correction critique** : Classes Tailwind générées dynamiquement via JavaScript
+- Ajout des classes Tailwind directement dans les widgets Django (forms.py)
+- Création de CustomPasswordChangeForm pour le formulaire de changement de mot de passe
+- Suppression du JavaScript dynamique dans les templates (series_form.html, edit_profile.html, change_password.html, series_detail.html)
+- Correction des chemins de compilation CSS dans package.json (src/staticfiles au lieu de src/theme/static)
+- Les formulaires fonctionnent maintenant correctement en production
 
 ### Version 1.3.0 (2026-05-09)
 - Ajout d'un effet toggle sur la section "Filtres" dans library.html

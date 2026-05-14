@@ -14,7 +14,6 @@
     <link rel="icon" type="image/x-icon" href="{% static 'img/favicon.ico' %}">
     <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
 
-    <link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
     {% tailwind_css %}
     <style>
         /* Custom scrollbar */
@@ -178,6 +177,15 @@
             height: 300px;
         }
 
+        /* Input success state */
+        .input-success {
+            border-color: rgb(25 128 87) !important;
+            box-shadow: 0 0 0 2px rgb(25 128 87 / 0.2) !important;
+        }
+        .input-success:focus {
+            box-shadow: 0 0 0 3px rgb(25 128 87 / 0.3) !important;
+        }
+
         /* Mobile sidebar overlay */
         .sidebar-overlay {
             background: rgba(0, 0, 0, 0.5);
@@ -290,6 +298,16 @@
                                 <span class="font-medium">Ajouter une série</span>
                             </a>
                         </li>
+                        {% if user.is_superuser %}
+                        <li>
+                            <a href="{% url 'tracker:add_site' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                </svg>
+                                <span class="font-medium">Ajouter un site</span>
+                            </a>
+                        </li>
+                        {% endif %}
                     {% else %}
                         <li>
                             <a href="{% url 'tracker:login' %}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition-all duration-200 group">

@@ -121,14 +121,18 @@ class CustomPasswordChangeForm(PasswordChangeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['old_password'].widget = forms.PasswordInput(attrs={
-            'class': 'input input-bordered w-full pr-10',
+            'class': 'input input-bordered w-full pl-12 pr-12',
             'placeholder': 'Mot de passe actuel'
         })
         self.fields['new_password1'].widget = forms.PasswordInput(attrs={
-            'class': 'input input-bordered w-full pr-10',
+            'class': 'input input-bordered w-full pl-12 pr-12',
             'placeholder': 'Nouveau mot de passe'
         })
         self.fields['new_password2'].widget = forms.PasswordInput(attrs={
-            'class': 'input input-bordered w-full pr-10',
+            'class': 'input input-bordered w-full pl-12 pr-12',
             'placeholder': 'Confirmer le mot de passe'
         })
+        self.fields['new_password1'].help_text = (
+            "8 caractères minimum · Pas similaire à vos infos personnelles · "
+            "Pas un mot de passe courant · Pas entièrement numérique"
+        )

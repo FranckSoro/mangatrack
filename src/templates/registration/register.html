@@ -80,7 +80,7 @@
                             <button
                                 type="button"
                                 onclick="togglePassword('password1', this)"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors password-toggle"
                                 aria-label="Afficher/masquer le mot de passe"
                             >
                                 <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,6 +89,15 @@
                                 </svg>
                                 <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match"
+                                aria-label="Mot de passe confirmé"
+                            >
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </button>
                         </div>
@@ -117,7 +126,7 @@
                             <button
                                 type="button"
                                 onclick="togglePassword('password2', this)"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors password-toggle"
                                 aria-label="Afficher/masquer le mot de passe"
                             >
                                 <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,6 +135,15 @@
                                 </svg>
                                 <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                                </svg>
+                            </button>
+                            <button
+                                type="button"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match"
+                                aria-label="Mot de passe confirmé"
+                            >
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </button>
                         </div>
@@ -152,16 +170,6 @@
                         </div>
                     </div>
                     {% endif %}
-
-                    <!-- Terms -->
-                    <div class="form-control">
-                        <label class="label cursor-pointer justify-start gap-2 py-1">
-                            <input type="checkbox" class="checkbox checkbox-primary mt-0.5 flex-shrink-0" required />
-                            <span class="label-text text-xs leading-tight">
-                                J'accepte les <a href="#" class="link link-primary">conditions d'utilisation</a> et la <a href="#" class="link link-primary">politique de confidentialité</a>
-                            </span>
-                        </label>
-                    </div>
 
                     <!-- Submit Button -->
                     <div class="form-control">
@@ -190,7 +198,7 @@
         </div>
 
         <!-- Features -->
-        <div class="grid grid-cols-3 gap-4 mt-8">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
             <div class="text-center fade-in stagger-1">
                 <div class="w-12 h-12 mx-auto rounded-xl bg-primary/20 flex items-center justify-center mb-2">
                     <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -220,20 +228,68 @@
 </div>
 
 <script>
-    function togglePassword(inputId, button) {
-        const passwordInput = document.getElementById(inputId);
-        const eyeOpen = button.querySelector('.eye-open');
-        const eyeClosed = button.querySelector('.eye-closed');
+function togglePassword(inputId, button) {
+    const passwordInput = document.getElementById(inputId);
+    const eyeOpen = button.querySelector('.eye-open');
+    const eyeClosed = button.querySelector('.eye-closed');
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            eyeOpen.classList.add('hidden');
-            eyeClosed.classList.remove('hidden');
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeOpen.classList.add('hidden');
+        eyeClosed.classList.remove('hidden');
+    } else {
+        passwordInput.type = 'password';
+        eyeOpen.classList.remove('hidden');
+        eyeClosed.classList.add('hidden');
+    }
+
+    // Re-check password match after toggling
+    checkPasswordMatch();
+}
+
+function checkPasswordMatch() {
+    const password1 = document.getElementById('password1');
+    const password2 = document.getElementById('password2');
+
+    if (password1 && password2) {
+        const matchButton1 = password1.closest('.form-control').querySelector('.password-match');
+        const matchButton2 = password2.closest('.form-control').querySelector('.password-match');
+
+        if (password1.value && password2.value) {
+            if (password1.value === password2.value) {
+                if (matchButton1) matchButton1.classList.remove('hidden');
+                if (matchButton2) matchButton2.classList.remove('hidden');
+
+                // Add success class to input borders
+                password1.classList.add('input-bordered', 'input-success');
+                password2.classList.add('input-bordered', 'input-success');
+            } else {
+                if (matchButton1) matchButton1.classList.add('hidden');
+                if (matchButton2) matchButton2.classList.add('hidden');
+
+                // Remove success class from input borders
+                password1.classList.remove('input-success');
+                password2.classList.remove('input-success');
+            }
         } else {
-            passwordInput.type = 'password';
-            eyeOpen.classList.remove('hidden');
-            eyeClosed.classList.add('hidden');
+            if (matchButton1) matchButton1.classList.add('hidden');
+            if (matchButton2) matchButton2.classList.add('hidden');
+
+            password1.classList.remove('input-success');
+            password2.classList.remove('input-success');
         }
     }
+}
+
+// Add event listeners for password validation
+document.addEventListener('DOMContentLoaded', function() {
+    const password1 = document.getElementById('password1');
+    const password2 = document.getElementById('password2');
+
+    if (password1 && password2) {
+        password1.addEventListener('input', checkPasswordMatch);
+        password2.addEventListener('input', checkPasswordMatch);
+    }
+});
 </script>
 {% endblock %}

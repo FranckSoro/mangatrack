@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
+<div class="w-full max-w-2xl mx-auto p-4">
     <div class="card bg-base-100 shadow-xl fade-in">
         <div class="card-body">
             <div class="flex items-center gap-4 mb-6">
@@ -50,7 +50,7 @@
 
                 {% if action == 'add' or action == 'edit_series' %}
                 <!-- Formulaire d'ajout/édition de série -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Title -->
                     <div class="form-control md:col-span-2">
                         <label class="label">
@@ -192,19 +192,19 @@
                         <label class="label">
                             <span class="label-text font-semibold">Note personnelle</span>
                         </label>
-                        <div class="flex items-center gap-4">
+                        <div class="flex flex-wrap gap-2">
                             {{ form.score }}
-                            <div class="flex gap-1">
-                                <button type="button" onclick="document.getElementById('id_score').value=1" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">1</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=2" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">2</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=3" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">3</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=4" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">4</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=5" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">5</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=6" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">6</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=7" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">7</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=8" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">8</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=9" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">9</button>
-                                <button type="button" onclick="document.getElementById('id_score').value=10" class="w-8 h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium">10</button>
+                            <div class="flex flex-wrap gap-1">
+                                <button type="button" onclick="document.getElementById('id_score').value=1" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">1</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=2" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">2</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=3" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">3</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=4" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">4</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=5" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">5</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=6" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">6</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=7" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">7</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=8" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">8</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=9" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">9</button>
+                                <button type="button" onclick="document.getElementById('id_score').value=10" class="w-9 h-9 sm:w-8 sm:h-8 rounded-full hover:bg-primary/20 transition-colors text-sm font-medium flex-shrink-0">10</button>
                             </div>
                         </div>
                         {% if form.score.errors %}

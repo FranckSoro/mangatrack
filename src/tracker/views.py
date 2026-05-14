@@ -73,7 +73,7 @@ def dashboard(request):
     # Activité récente
     recent_entries = ReadingEntry.objects.filter(
         user_series__user=user
-    ).select_related('user_series__series')[:10]
+    ).select_related('user_series__series')[:5]
 
     # Favoris
     favorites = UserSeries.objects.filter(user=user, is_favorite=True)[:5]

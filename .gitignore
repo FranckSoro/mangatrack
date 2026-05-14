@@ -59,6 +59,7 @@ yarn.lock
 # Media files
 mediafiles/
 media/
+staticfiles/
 
 
 # Coverage
