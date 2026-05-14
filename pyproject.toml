@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [project.scripts]
-app = "src.config.wsgi:application"
+app = "config.wsgi:application"   # ← correct car racine = src/
 
 [tool.vercel.scripts]
 build = "python build.py"
