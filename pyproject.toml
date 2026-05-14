@@ -25,5 +25,8 @@ dependencies = [
 [project.scripts]
 app = "config.wsgi:application"
 
+[tool.vercel]
+root_directory = "src"          # ← Vercel cherche manage.py ici
+
 [tool.vercel.scripts]
-build = "python build.py"
+build = "python ../build.py"    # ← build.py reste à la racine
