@@ -76,7 +76,7 @@ def dashboard(request):
     ).select_related('user_series__series')[:5]
 
     # Favoris
-    favorites = UserSeries.objects.filter(user=user, is_favorite=True)[:5]
+    favorites = UserSeries.objects.filter(user=user, is_favorite=True)[:4]
 
     context = {
         'total_series': total_series,

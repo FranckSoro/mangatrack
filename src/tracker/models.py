@@ -23,6 +23,7 @@ class Series(models.Model):
         ('manga', 'Manga'),
         ('manhwa', 'Manhwa'),
         ('manhua', 'Manhua'),
+        ('novel', 'Novel'),
     ]
 
     title = models.CharField(max_length=200)

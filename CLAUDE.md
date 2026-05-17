@@ -342,6 +342,7 @@ created_at = DateTimeField(auto_now_add=True)
 | AWS S3 Storage | ✅ Complet |
 | Optimisation UI | ✅ En cours |
 | Responsive design formulaires | ✅ Complet |
+| Validation visuelle mot de passe (animation) | ✅ v1.7.0 |
 
 ### Fonctionnalités futures
 | Fonctionnalité | État |
@@ -353,7 +354,7 @@ created_at = DateTimeField(auto_now_add=True)
 | Toggle favoris HTMX | ❌ À faire |
 | Optimisation UI continue | ✅ v1.5.0 |
 | Améliorations responsive | ✅ v1.5.0 |
-| Validation mot de passe visuelle | ✅ v1.5.0 |
+| Validation mot de passe visuelle | ✅ v1.7.0 |
 
 ---
 
@@ -992,6 +993,26 @@ python src/manage.py test
 ---
 
 ## 31. Changements récents et historique des versions
+
+### Version 1.7.0 (2026-05-17)
+- **Refonte complète de la validation visuelle des mots de passe** : Système d'animation fluide sur les 3 templates (`register.html`, `change_password.html`, `password_reset_confirm.html`).
+- **Animation "sliding eye"** : Le bouton œil 👁 démarre à `right-3` et glisse vers `right-10` (`transition-all duration-300 ease-in-out`) quand la validation s'active, libérant l'espace pour les icônes de validation.
+- **Icône ✓ verte (password-match)** : Apparaît avec animation pop-in (`@keyframes iconPopIn` : opacity + scale) quand les mots de passe correspondent. Bordure verte (`input-success`).
+- **Icône ✗ rouge (password-mismatch)** : Apparaît avec la même animation quand les mots de passe ne correspondent pas. Bordure rouge (`input-error`).
+- **3 états de validation** : vide (œil à droite, aucune icône), match (✓ vert + bordure verte), mismatch (✗ rouge + bordure rouge).
+- **Correction alignement icônes** : Utilisation de la propriété CSS `scale` séparée au lieu de `transform: scale()` dans les `@keyframes` pour éviter les conflits avec `-translate-y-1/2` de Tailwind.
+- **Icônes non-interactives** : Les icônes ✓/✗ sont des `<span>` avec `pointer-events-none` au lieu de `<button>`.
+- **setTimeout 200ms** : Les icônes de validation apparaissent avec un délai de 200ms après le début du slide de l'œil pour un effet séquentiel propre.
+- **Correction bug chevauchement** : Les boutons œil et ✓ ne se superposent plus dans `register.html` (ancien `right-4` → `right-3` animé).
+- **Correction centrage vertical** : Ajout de `-translate-y-1/2` manquant sur les boutons œil dans `password_reset_confirm.html`.
+- **Harmonisation des styles** : Couleurs œil uniformisées (`text-base-content/50 hover:text-base-content`), double espace CSS corrigé.
+- **Padding inputs** : `pr-12` par défaut (compact), le texte ne passe plus sous les icônes grâce au slide de l'œil.
+
+### Version 1.6.0 (2026-05-16)
+- **Correction togglePassword change_password.html** : La fonction `togglePassword()` ciblait toujours le premier input (mot de passe actuel) au lieu du bon champ. Correction en utilisant `container.querySelector('input')` pour cibler l'input dans le conteneur parent du bouton cliqué.
+- **Correction fonction vérification change_password.html** : La fonction `checkPasswordMatch()` comparait `old_password` avec `new_password1` au lieu de comparer `new_password1` avec `new_password2`. Correction en utilisant `document.querySelector('input[name="new_password1"]')` et `document.querySelector('input[name="new_password2"]')` pour cibler explicitement les nouveaux mots de passe.
+- **Harmonisation espacement boutons "œil"** : Uniformisation des positions `right-4` et `right-10` sur tous les templates (register.html, change_password.html, password_reset_confirm.html) pour un espacement cohérent entre le bouton "œil" et le "V" de validation.
+- **Écouteurs événements input** : Ajout d'écouteurs `input` sur les champs de nouveau mot de passe et confirmation pour la validation en temps réel dans `change_password.html`.
 
 ### Version 1.5.0 (2026-05-13)
 - **Validation visuelle mot de passe** : Icône verte de confirmation quand les mots de passe correspondent

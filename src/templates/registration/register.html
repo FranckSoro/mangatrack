@@ -80,7 +80,7 @@
                             <button
                                 type="button"
                                 onclick="togglePassword('password1', this)"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors password-toggle"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content transition-all duration-300 ease-in-out password-toggle"
                                 aria-label="Afficher/masquer le mot de passe"
                             >
                                 <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -91,15 +91,22 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                                 </svg>
                             </button>
-                            <button
-                                type="button"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match"
+                            <span
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match pointer-events-none"
                                 aria-label="Mot de passe confirmé"
                             >
                                 <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                            </button>
+                            </span>
+                            <span
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-error hidden password-mismatch pointer-events-none"
+                                aria-label="Les mots de passe ne correspondent pas"
+                            >
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </span>
                         </div>
                         <label class="label">
                             <span class="label-text-alt">Au moins 8 caractères</span>
@@ -126,7 +133,7 @@
                             <button
                                 type="button"
                                 onclick="togglePassword('password2', this)"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content/70 transition-colors password-toggle"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/50 hover:text-base-content transition-all duration-300 ease-in-out password-toggle"
                                 aria-label="Afficher/masquer le mot de passe"
                             >
                                 <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,15 +144,22 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
                                 </svg>
                             </button>
-                            <button
-                                type="button"
-                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match"
+                            <span
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-success hidden password-match pointer-events-none"
                                 aria-label="Mot de passe confirmé"
                             >
                                 <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                            </button>
+                            </span>
+                            <span
+                                class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-error hidden password-mismatch pointer-events-none"
+                                aria-label="Les mots de passe ne correspondent pas"
+                            >
+                                <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </span>
                         </div>
                     </div>
 
@@ -227,6 +241,17 @@
     </div>
 </div>
 
+<style>
+@keyframes iconPopIn {
+    from { opacity: 0; scale: 0.3; }
+    to { opacity: 1; scale: 1; }
+}
+.password-match:not(.hidden),
+.password-mismatch:not(.hidden) {
+    animation: iconPopIn 0.25s ease-out forwards;
+}
+</style>
+
 <script>
 function togglePassword(inputId, button) {
     const passwordInput = document.getElementById(inputId);
@@ -243,45 +268,71 @@ function togglePassword(inputId, button) {
         eyeClosed.classList.add('hidden');
     }
 
-    // Re-check password match after toggling
     checkPasswordMatch();
 }
+
+let validationTimeout = null;
 
 function checkPasswordMatch() {
     const password1 = document.getElementById('password1');
     const password2 = document.getElementById('password2');
 
-    if (password1 && password2) {
-        const matchButton1 = password1.closest('.form-control').querySelector('.password-match');
-        const matchButton2 = password2.closest('.form-control').querySelector('.password-match');
+    if (!password1 || !password2) return;
 
-        if (password1.value && password2.value) {
-            if (password1.value === password2.value) {
-                if (matchButton1) matchButton1.classList.remove('hidden');
-                if (matchButton2) matchButton2.classList.remove('hidden');
+    const container1 = password1.closest('.form-control');
+    const container2 = password2.closest('.form-control');
 
-                // Add success class to input borders
-                password1.classList.add('input-bordered', 'input-success');
-                password2.classList.add('input-bordered', 'input-success');
-            } else {
-                if (matchButton1) matchButton1.classList.add('hidden');
-                if (matchButton2) matchButton2.classList.add('hidden');
+    const matchIcon1 = container1.querySelector('.password-match');
+    const matchIcon2 = container2.querySelector('.password-match');
+    const mismatchIcon1 = container1.querySelector('.password-mismatch');
+    const mismatchIcon2 = container2.querySelector('.password-mismatch');
+    const eyeBtn1 = container1.querySelector('.password-toggle');
+    const eyeBtn2 = container2.querySelector('.password-toggle');
 
-                // Remove success class from input borders
-                password1.classList.remove('input-success');
-                password2.classList.remove('input-success');
+    // Clear any pending icon reveal
+    if (validationTimeout) clearTimeout(validationTimeout);
+
+    // Hide all validation icons immediately
+    [matchIcon1, matchIcon2, mismatchIcon1, mismatchIcon2].forEach(el => {
+        if (el) el.classList.add('hidden');
+    });
+    password1.classList.remove('input-success', 'input-error');
+    password2.classList.remove('input-success', 'input-error');
+
+    if (password1.value && password2.value) {
+        // Slide eyes to the left to make room
+        [eyeBtn1, eyeBtn2].forEach(btn => {
+            if (btn) {
+                btn.classList.remove('right-3');
+                btn.classList.add('right-10');
             }
-        } else {
-            if (matchButton1) matchButton1.classList.add('hidden');
-            if (matchButton2) matchButton2.classList.add('hidden');
+        });
 
-            password1.classList.remove('input-success');
-            password2.classList.remove('input-success');
-        }
+        // Show validation icon after eye has slid (with delay)
+        validationTimeout = setTimeout(() => {
+            if (password1.value === password2.value) {
+                if (matchIcon1) matchIcon1.classList.remove('hidden');
+                if (matchIcon2) matchIcon2.classList.remove('hidden');
+                password1.classList.add('input-success');
+                password2.classList.add('input-success');
+            } else {
+                if (mismatchIcon1) mismatchIcon1.classList.remove('hidden');
+                if (mismatchIcon2) mismatchIcon2.classList.remove('hidden');
+                password1.classList.add('input-error');
+                password2.classList.add('input-error');
+            }
+        }, 200);
+    } else {
+        // Slide eyes back to original position
+        [eyeBtn1, eyeBtn2].forEach(btn => {
+            if (btn) {
+                btn.classList.remove('right-10');
+                btn.classList.add('right-3');
+            }
+        });
     }
 }
 
-// Add event listeners for password validation
 document.addEventListener('DOMContentLoaded', function() {
     const password1 = document.getElementById('password1');
     const password2 = document.getElementById('password2');
