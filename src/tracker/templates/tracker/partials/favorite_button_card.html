@@ -1,0 +1,11 @@
+<button hx-post="{% url 'tracker:toggle_favorite' user_series.series.slug %}?style=card"
+        hx-swap="outerHTML"
+        class="text-xl shrink-0 focus:outline-none transition-transform active:scale-95"
+        title="{% if user_series.is_favorite %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}"
+        aria-label="Favori">
+    {% if user_series.is_favorite %}
+    <span class="text-yellow-500">★</span>
+    {% else %}
+    <span class="text-base-content/25 hover:text-yellow-500 transition-colors">☆</span>
+    {% endif %}
+</button>

@@ -1,0 +1,38 @@
+<div class="card-body">
+    <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Progression
+    </h3>
+
+    <div class="text-center mb-4">
+        <div class="text-4xl sm:text-5xl font-bold">{{ last_chapter }}</div>
+        <div class="text-white/80">chapitres lus</div>
+    </div>
+
+    {% if user_series.series.total_chapters > 0 %}
+    <div class="text-center mb-4">
+        <div class="text-2xl font-semibold">{{ user_series.series.total_chapters }}</div>
+        <div class="text-white/80">chapitres au total</div>
+    </div>
+
+    <progress
+        class="progress progress-white w-full"
+        value="{{ last_chapter }}"
+        max="{{ user_series.series.total_chapters }}"
+    ></progress>
+
+    <div class="text-center mt-2">
+        <span class="text-lg font-semibold">
+            {% widthratio last_chapter user_series.series.total_chapters 100 as percent %}
+            {{ percent|floatformat:0 }}%
+        </span>
+        <span class="text-white/80"> complété</span>
+    </div>
+    {% else %}
+    <div class="text-center py-4">
+        <p class="text-white/80">Nombre de chapitres inconnu</p>
+    </div>
+    {% endif %}
+</div>

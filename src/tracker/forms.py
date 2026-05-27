@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from .models import Genre, Series, UserSeries, ReadingEntry, ReadingSite
 
@@ -99,7 +99,7 @@ class ReadingSiteForm(forms.ModelForm):
         }
 
 
-class ProfileForm(UserChangeForm):
+class ProfileForm(forms.ModelForm):
     """Formulaire de modification du profil utilisateur"""
     class Meta:
         model = User
@@ -114,6 +114,10 @@ class ProfileForm(UserChangeForm):
                 'placeholder': 'votre@email.com'
             })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].required = False
 
 
 class CustomPasswordChangeForm(PasswordChangeForm):

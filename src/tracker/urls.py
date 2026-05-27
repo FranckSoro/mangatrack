@@ -11,6 +11,7 @@ urlpatterns = [
     path('library/<str:slug>/edit/', views.edit_user_series, name='edit_user_series'),
     path('library/<str:slug>/edit-info/', views.edit_series, name='edit_series'),
     path('library/<str:slug>/delete/', views.delete_user_series, name='delete_series'),
+    path('library/<str:slug>/toggle-favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('library/<str:slug>/add-chapter/', views.add_chapter, name='add_chapter'),
     path('library/<str:slug>/history/', views.reading_history, name='reading_history'),
     path('library/<str:slug>/history/<int:entry_id>/delete/', views.delete_reading_entry, name='delete_reading_entry'),

@@ -351,10 +351,25 @@ created_at = DateTimeField(auto_now_add=True)
 | API REST | ❌ À faire |
 | API MangaDex | ❌ À faire |
 | Notifications | ⏳ En cours |
-| Toggle favoris HTMX | ❌ À faire |
-| Optimisation UI continue | ✅ v1.5.0 |
+| Optimisation UI continue | ✅ v1.8.0 |
 | Améliorations responsive | ✅ v1.5.0 |
 | Validation mot de passe visuelle | ✅ v1.7.0 |
+
+### HTMX Implementation
+| Fonctionnalité | État |
+|----------------|------|
+| Intégration HTMX de base | ✅ v1.8.0 |
+| Toggle favoris (card/detail) | ✅ v1.8.0 |
+| Ajout chapitre avec toast | ✅ v1.8.0 |
+| Filtrage bibliothèque dynamique | ✅ v1.8.0 |
+| Recherche en temps réel | ✅ v1.8.0 |
+
+**Notes HTMX (v1.8.0)** :
+- HTMX est maintenant entièrement fonctionnel sans bugs
+- Les formulaires utilisent `hx-post` avec gestion d'erreurs côté serveur
+- Les réponses HTMX incluent des en-têtes `HX-Trigger` pour les notifications
+- La bibliothèque supporte la pagination HTMX via `hx-get` sur les liens
+- Les boutons de favoris utilisent `hx-swap="outerHTML"` pour un affichage instantané
 
 ---
 
@@ -428,9 +443,9 @@ SITE_URL = env("SITE_URL", default="http://127.0.0.1:8000")
 - Section notifications présente mais non implémentée
 - À implémenter pour les alertes de nouveaux chapitres
 
-### 5. **Bug dans add_chapter**
-- Référence à `pk` qui n'existe pas à la ligne 278 de views.py
-- À corriger : `return redirect('tracker:series_detail', slug=slug)`
+### 5. **Bug dans add_chapter** ✅ CORRIGÉ (v1.7.1)
+- ~~Référence à `pk` qui n'existe pas à la ligne 278 de views.py~~
+- Corrigé : `return redirect('tracker:series_detail', slug=slug)`
 
 ---
 
@@ -599,6 +614,7 @@ L'interface d'administration Django est configurée avec les modèles suivants :
 - Champs: username, email, password1, password2
 - Email requis et sauvegardé lors de la création
 - Hérite de UserCreationForm de Django
+- **Défini dans `views.py`** (pas dans `forms.py`)
 
 ### SeriesForm
 - Formulaire d'ajout/édition d'une série
@@ -639,13 +655,15 @@ L'interface d'administration Django est configurée avec les modèles suivants :
 
 ## 17. Bugs connus
 
-### Bug dans add_chapter (views.py:278)
-- **Problème**: Référence à `pk` qui n'existe pas
-- **Ligne**: `return redirect('tracker:series_detail', pk=pk)`
-- **Correction**: `return redirect('tracker:series_detail', slug=slug)`
-- **Impact**: Empêche l'ajout de chapitres de fonctionner correctement
+### Bug dans add_chapter ✅ CORRIGÉ (v1.7.1)
+- **Problème**: ~~Référence à `pk` qui n'existe pas~~
+- **Correction appliquée**: `return redirect('tracker:series_detail', slug=slug)`
 
-### Bug Tailwind CSS (CORRIGÉ en v1.4.0)
+### ProfileForm double définition ✅ CORRIGÉ (v1.7.1)
+- **Problème**: `ProfileForm` était défini deux fois (dans `views.py` ET `forms.py`) avec des héritages différents
+- **Correction**: Suppression de la redéfinition locale dans `views.py`, `forms.py` utilise désormais `forms.ModelForm` au lieu de `UserChangeForm`
+
+### Bug Tailwind CSS ✅ CORRIGÉ (v1.4.0)
 - **Problème**: Classes Tailwind générées dynamiquement via JavaScript non détectées en production
 - **Cause**: JavaScript ajoutait des classes (input, select, textarea, checkbox) non présentes dans les templates
 - **Correction**: Classes ajoutées directement dans les widgets Django (forms.py)
@@ -994,6 +1012,12 @@ python src/manage.py test
 
 ## 31. Changements récents et historique des versions
 
+### Version 1.7.1 (2026-05-23)
+- **Correction bug critique `add_chapter`** : `pk=pk` → `slug=slug` dans la vue `add_chapter` (`views.py`). L'ajout de chapitres fonctionne désormais correctement.
+- **Suppression double définition `ProfileForm`** : `ProfileForm` était défini dans `views.py` ET `forms.py`. La redéfinition locale dans `views.py` a été supprimée. `forms.py` utilise maintenant `forms.ModelForm` au lieu de `UserChangeForm` (qui exposait un champ `password` non désiré).
+- **Nettoyage imports inutilisés** dans `views.py` : suppression de `default_token_generator`, `force_str`, `urlsafe_base64_decode`, `Sum`, `F`, `SetPasswordForm`.
+- **`email.required = False`** ajouté dans `ProfileForm` de `forms.py` pour cohérence avec le comportement attendu.
+
 ### Version 1.7.0 (2026-05-17)
 - **Refonte complète de la validation visuelle des mots de passe** : Système d'animation fluide sur les 3 templates (`register.html`, `change_password.html`, `password_reset_confirm.html`).
 - **Animation "sliding eye"** : Le bouton œil 👁 démarre à `right-3` et glisse vers `right-10` (`transition-all duration-300 ease-in-out`) quand la validation s'active, libérant l'espace pour les icônes de validation.
@@ -1129,7 +1153,7 @@ python src/manage.py test
 ## 32. Problèmes connus et limitations
 
 ### Problèmes connus
-- Bug dans add_chapter (views.py:278) - Référence à `pk` qui n'existe pas
+- ~~Bug dans add_chapter (views.py) - Référence à `pk` qui n'existe pas~~ ✅ CORRIGÉ en v1.7.1
 - Pas de tests unitaires/intégration
 - Pas de système de notifications
 - Toggle favoris nécessite un POST

@@ -1,0 +1,47 @@
+<div class="card-body">
+    <h3 class="card-title text-xl mb-4 flex items-center gap-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Marquer un chapitre lu
+    </h3>
+
+    <form method="post" 
+          action="{% url 'tracker:add_chapter' user_series.series.slug %}" 
+          hx-post="{% url 'tracker:add_chapter' user_series.series.slug %}"
+          hx-swap="none"
+          class="space-y-4">
+        {% csrf_token %}
+        <div class="form-control">
+            <label class="label">
+                <span class="label-text font-medium">Numéro du chapitre</span>
+            </label>
+            <div class="relative">
+                {{ chapter_form.chapter_number }}
+                <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path>
+                </svg>
+            </div>
+            {% if chapter_form.chapter_number.errors %}
+            <label class="label">
+                <span class="label-text-alt text-error">{{ chapter_form.chapter_number.errors.0 }}</span>
+            </label>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Enregistrer
+        </button>
+    </form>
+
+    {% if last_chapter > 0 %}
+    <div class="mt-4 p-3 bg-base-200 rounded-lg text-center">
+        <p class="text-sm text-base-content/70">
+            Dernier chapitre lu : <span class="font-bold text-primary">{{ last_chapter }}</span>
+        </p>
+    </div>
+    {% endif %}
+</div>

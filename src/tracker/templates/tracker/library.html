@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tracker_extras %}
 
 {% block title %}Bibliothèque - MangaTrack{% endblock %}
 
@@ -28,7 +29,14 @@
             Filtres
         </div>
         <div class="collapse-content px-6 pb-4">
-            <form method="get" class="space-y-4">
+            <form method="get"
+                  hx-get="{% url 'tracker:library' %}"
+                  hx-trigger="change from:select, change from:input[type='checkbox']"
+                  hx-target="#library-content"
+                  hx-select="#library-content"
+                  hx-swap="outerHTML"
+                  hx-push-url="true"
+                  class="space-y-4">
                 <!-- Search -->
                 <div class="form-control">
                     <div class="relative">
@@ -38,6 +46,12 @@
                             value="{{ request.GET.search }}"
                             placeholder="Rechercher une série..."
                             class="input input-bordered w-full pl-12"
+                            hx-get="{% url 'tracker:library' %}"
+                            hx-trigger="keyup changed delay:500ms, search"
+                            hx-target="#library-content"
+                            hx-select="#library-content"
+                            hx-swap="outerHTML"
+                            hx-push-url="true"
                         >
                         <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -117,95 +131,115 @@
         </div>
     </div>
 
-    <!-- Grille des séries -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {% for user_series in user_series_list %}
-        <div class="card card-compact bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="relative w-full block overflow-hidden rounded-t-lg" style="aspect-ratio: 2/2.8;">
-                {% if user_series.series.cover %}
-                <img src="{{ user_series.series.cover_url }}" alt="{{ user_series.series.title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy" />
-                {% else %}
-                <div class="absolute inset-0 bg-base-300 flex items-center justify-center">
-                    <span class="text-6xl opacity-50">📚</span>
-                </div>
-                {% endif %}
-            </a>
-
-            <div class="card-body py-3 px-4">
-                <div class="flex justify-between items-start gap-2 mb-2">
-                    <h2 class="card-title text-base line-clamp-2 leading-tight">
-                        <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="hover:text-primary transition-colors" title="{{ user_series.series.title }}">
-                            {{ user_series.series.title }}
-                        </a>
-                    </h2>
-                    {% if user_series.is_favorite %}
-                    <span class="text-yellow-500 shrink-0" aria-label="Favori">★</span>
-                    {% endif %}
-                </div>
-
-                <div class="text-xs text-base-content/70 mb-2 truncate">
-                    {{ user_series.series.get_series_type_display }} • {{ user_series.series.author }}
-                </div>
-
-                <div class="flex flex-wrap gap-1.5 mb-2">
-                    <div class="badge badge-sm
-                        {% if user_series.status == 'en_cours' %}badge-info
-                        {% elif user_series.status == 'termine' %}badge-success
-                        {% elif user_series.status == 'pause' %}badge-warning
-                        else %}badge-error{% endif %}">
-                        {{ user_series.get_status_display }}
+    <!-- Grille des séries et Pagination -->
+    <div id="library-content" class="space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {% for user_series in user_series_list %}
+            <div class="card card-compact bg-base-100 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+                <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="relative w-full block overflow-hidden rounded-t-lg" style="aspect-ratio: 2/2.8;">
+                    {% if user_series.series.cover %}
+                    <img src="{{ user_series.series.cover_url }}" alt="{{ user_series.series.title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy" />
+                    {% else %}
+                    <div class="absolute inset-0 bg-base-300 flex items-center justify-center">
+                        <span class="text-6xl opacity-50">📚</span>
                     </div>
-                    {% if user_series.score %}
-                    <div class="badge badge-sm badge-primary">{{ user_series.score }}/10</div>
                     {% endif %}
-                </div>
+                </a>
 
-                <div class="text-xs text-base-content/60">
-                    <span class="font-medium">Chapitres lus :</span> {{ user_series.last_chapter|default:0 }} / {{ user_series.series.total_chapters|default:"?" }}
+                <div class="card-body py-3 px-4">
+                    <div class="flex justify-between items-start gap-2 mb-2">
+                        <h2 class="card-title text-base line-clamp-2 leading-tight">
+                            <a href="{% url 'tracker:series_detail' user_series.series.slug %}" class="hover:text-primary transition-colors" title="{{ user_series.series.title }}">
+                                {{ user_series.series.title }}
+                            </a>
+                        </h2>
+                        {% include 'tracker/partials/favorite_button_card.html' %}
+                    </div>
+
+                    <div class="text-xs text-base-content/70 mb-2 truncate">
+                        {{ user_series.series.get_series_type_display }} • {{ user_series.series.author }}
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5 mb-2">
+                        <div class="badge badge-sm
+                            {% if user_series.status == 'en_cours' %}badge-info
+                            {% elif user_series.status == 'termine' %}badge-success
+                            {% elif user_series.status == 'pause' %}badge-warning
+                            else %}badge-error{% endif %}">
+                            {{ user_series.get_status_display }}
+                        </div>
+                        {% if user_series.score %}
+                        <div class="badge badge-sm badge-primary">{{ user_series.score }}/10</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="text-xs text-base-content/60">
+                        <span class="font-medium">Chapitres lus :</span> {{ user_series.last_chapter|default:0 }} / {{ user_series.series.total_chapters|default:"?" }}
+                    </div>
                 </div>
             </div>
-        </div>
-        {% empty %}
-        <div class="col-span-full text-center py-16">
-            <div class="inline-flex flex-col items-center gap-4">
-                <div class="w-20 h-20 rounded-full bg-base-200 flex items-center justify-center">
-                    <svg class="w-10 h-10 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-lg font-medium mb-2">Votre bibliothèque est vide</p>
-                    <a href="{% url 'tracker:add_series' %}" class="btn btn-primary btn-sm gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            {% empty %}
+            <div class="col-span-full text-center py-16">
+                <div class="inline-flex flex-col items-center gap-4">
+                    <div class="w-20 h-20 rounded-full bg-base-200 flex items-center justify-center">
+                        <svg class="w-10 h-10 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                         </svg>
-                        Ajouter votre première série
-                    </a>
+                    </div>
+                    <div>
+                        <p class="text-lg font-medium mb-2">Votre bibliothèque est vide</p>
+                        <a href="{% url 'tracker:add_series' %}" class="btn btn-primary btn-sm gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            Ajouter votre première série
+                        </a>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
 
-    <!-- Pagination -->
-    {% if user_series_list.has_other_pages %}
-    <div class="flex justify-center mt-6">
-        <div class="join">
-            {% if user_series_list.has_previous %}
-            <a href="?page=1{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">««</a>
-            <a href="?page={{ user_series_list.previous_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">«</a>
-            {% endif %}
+        <!-- Pagination -->
+        {% if user_series_list.has_other_pages %}
+        <div class="flex justify-center mt-6">
+            <div class="join">
+                {% if user_series_list.has_previous %}
+                <a href="?{% url_replace request 'page' user_series_list.previous_page_number %}"
+                   hx-get="{% url 'tracker:library' %}?{% url_replace request 'page' user_series_list.previous_page_number %}"
+                   hx-target="#library-content"
+                   hx-select="#library-content"
+                   hx-swap="outerHTML"
+                   hx-push-url="true"
+                   class="join-item btn">« Précédent</a>
+                {% endif %}
 
-            <button class="join-item btn btn-active">
-                Page {{ user_series_list.number }} sur {{ user_series_list.paginator.num_pages }}
-            </button>
+                {% for num in user_series_list.paginator.page_range %}
+                    {% if num == user_series_list.number %}
+                    <button class="join-item btn btn-active">{{ num }}</button>
+                    {% elif num > user_series_list.number|add:'-3' and num < user_series_list.number|add:'3' %}
+                    <a href="?{% url_replace request 'page' num %}"
+                       hx-get="{% url 'tracker:library' %}?{% url_replace request 'page' num %}"
+                       hx-target="#library-content"
+                       hx-select="#library-content"
+                       hx-swap="outerHTML"
+                       hx-push-url="true"
+                       class="join-item btn">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
 
-            {% if user_series_list.has_next %}
-            <a href="?page={{ user_series_list.next_page_number }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">»</a>
-            <a href="?page={{ user_series_list.paginator.num_pages }}{% if request.GET.urlencode %}&{{ request.GET.urlencode }}{% endif %}" class="join-item btn">»»</a>
-            {% endif %}
+                {% if user_series_list.has_next %}
+                <a href="?{% url_replace request 'page' user_series_list.next_page_number %}"
+                   hx-get="{% url 'tracker:library' %}?{% url_replace request 'page' user_series_list.next_page_number %}"
+                   hx-target="#library-content"
+                   hx-select="#library-content"
+                   hx-swap="outerHTML"
+                   hx-push-url="true"
+                   class="join-item btn">Suivant »</a>
+                {% endif %}
+            </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
 </div>
 {% endblock %}

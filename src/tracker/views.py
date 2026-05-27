@@ -1,14 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
+from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm, PasswordResetForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import PasswordResetConfirmView
-from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
-from django.db.models import Count, Avg, Sum, F, Max
+from django.db.models import Count, Avg, Max
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django import forms
@@ -16,21 +13,6 @@ from django.conf import settings
 
 from .models import Series, UserSeries, ReadingEntry, Genre, ReadingSite
 from .forms import SeriesForm, UserSeriesForm, ReadingEntryForm, ReadingSiteForm, ProfileForm, CustomPasswordChangeForm
-
-
-class ProfileForm(forms.ModelForm):
-    """Formulaire de modification du profil utilisateur"""
-    class Meta:
-        model = User
-        fields = ['username', 'email']
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'input input-bordered w-full'}),
-            'email': forms.EmailInput(attrs={'class': 'input input-bordered w-full'}),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['email'].required = False
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -271,6 +253,30 @@ def delete_user_series(request, slug):
 
 
 @login_required
+def toggle_favorite(request, slug):
+    """Bascule le statut de favori d'une série"""
+    series = get_object_or_404(Series, slug=slug)
+    user_series = get_object_or_404(
+        UserSeries.objects.select_related('series'),
+        series=series,
+        user=request.user
+    )
+
+    if request.method == 'POST':
+        user_series.is_favorite = not user_series.is_favorite
+        user_series.save()
+
+        if request.headers.get('HX-Request'):
+            style = request.GET.get('style', 'card')
+            context = {'user_series': user_series}
+            if style == 'detail':
+                return render(request, 'tracker/partials/favorite_button_detail.html', context)
+            return render(request, 'tracker/partials/favorite_button_card.html', context)
+
+    return redirect('tracker:series_detail', slug=slug)
+
+
+@login_required
 def add_chapter(request, slug):
     """Ajouter un chapitre lu"""
     series = get_object_or_404(Series, slug=slug)
@@ -280,18 +286,63 @@ def add_chapter(request, slug):
         user=request.user
     )
 
+    # Récupérer les infos existantes (au cas où la validation échouerait)
+    last_entry = user_series.reading_entries.order_by('-chapter_number').first()
+    last_chapter = last_entry.chapter_number if last_entry else 0
+
     if request.method == 'POST':
         form = ReadingEntryForm(request.POST)
         if form.is_valid():
             entry = form.save(commit=False)
             entry.user_series = user_series
             entry.save()
+
+            # Re-calculer après ajout
+            last_entry = user_series.reading_entries.order_by('-chapter_number').first()
+            last_chapter = last_entry.chapter_number if last_entry else 0
+            history = user_series.reading_entries.order_by('-read_at')[:20]
+
+            if request.headers.get('HX-Request'):
+                context = {
+                    'user_series': user_series,
+                    'last_chapter': last_chapter,
+                    'history': history,
+                    'chapter_form': ReadingEntryForm(),
+                }
+                import json
+                response = render(request, 'tracker/partials/add_chapter_response.html', context)
+                trigger_data = {
+                    "showToast": {
+                        "message": f"Chapitre {entry.chapter_number} enregistré !",
+                        "type": "success"
+                    }
+                }
+                response['HX-Trigger'] = json.dumps(trigger_data)
+                return response
+
             messages.success(request, f"Chapitre {entry.chapter_number} enregistré !")
             return redirect('tracker:series_detail', slug=slug)
+        else:
+            if request.headers.get('HX-Request'):
+                context = {
+                    'user_series': user_series,
+                    'chapter_form': form,
+                    'last_chapter': last_chapter,
+                }
+                import json
+                response = render(request, 'tracker/partials/add_chapter_error.html', context)
+                trigger_data = {
+                    "showToast": {
+                        "message": "Erreur lors de l'enregistrement du chapitre.",
+                        "type": "error"
+                    }
+                }
+                response['HX-Trigger'] = json.dumps(trigger_data)
+                return response
     else:
         form = ReadingEntryForm()
 
-    return redirect('tracker:series_detail', pk=pk)
+    return redirect('tracker:series_detail', slug=slug)
 
 
 @login_required
